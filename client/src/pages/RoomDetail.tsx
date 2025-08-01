@@ -7,22 +7,7 @@ import {
   roomsDummyData,
 } from "../assets/assets";
 import StarRating from "../components/StarRating";
-
-interface Room {
-  _id: string;
-  images: string[];
-  hotel: {
-    name: string;
-    address: string;
-    owner?: {
-      image: string;
-    };
-  };
-  roomType: string;
-  pricePerNight: number;
-  amenities: string[];
-  description?: string;
-}
+import type { Room } from "../types";
 
 const RoomDetail = () => {
   const { id } = useParams<{ id: string }>();
@@ -33,7 +18,9 @@ const RoomDetail = () => {
     const room = roomsDummyData.find((r) => r._id === id);
     if (room) {
       setRoom(room as Room);
-      setMainImage(room.images[0]);
+      if (room.images && room.images.length > 0) {
+        setMainImage(room.images[0] || null);
+      }
     }
   }, [id]);
 

@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import Title from "../../components/Title";
 import { assets } from "../../assets/assets";
+import type { RoomFormData } from "../../types";
 
 const AddRoom = () => {
   const [images, setImages] = useState<{ [key: string]: File | null }>({

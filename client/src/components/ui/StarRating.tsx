@@ -25,7 +25,7 @@ const StarRating: React.FC<StarRatingProps> = ({
     <div className="flex items-center gap-1">
       {Array.from({ length: maxRating }, (_, index) => {
         const starRating = index + 1;
-        const isFilled = starRating <= rating;
+        const isFilled = starRating <= (rating || 0);
 
         return (
           <button

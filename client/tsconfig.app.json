@@ -19,6 +19,9 @@
     "strict": true,
     "noUnusedLocals": false,
     "noUnusedParameters": false,
+    "noImplicitReturns": true,
+    "noUncheckedIndexedAccess": true,
+    "exactOptionalPropertyTypes": false,
     "erasableSyntaxOnly": true,
     "noFallthroughCasesInSwitch": true,
     "noUncheckedSideEffectImports": true

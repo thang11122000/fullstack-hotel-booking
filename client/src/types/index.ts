@@ -1,126 +1,156 @@
-// Base types
-export interface BaseEntity {
-  _id: string;
-  createdAt: string;
-  updatedAt: string;
-  __v?: number;
-}
+// Common types for the hotel booking application
 
-// User types
-export interface User extends BaseEntity {
+export interface User {
+  _id: string;
   username: string;
   email: string;
   image: string;
-  role: "user" | "hotelOwner";
+  role: "user" | "owner" | "admin" | "hotelOwner";
+  createdAt: string;
+  updatedAt: string;
+  __v: number;
   recentSearchedCities?: string[];
 }
 
-// Hotel types
-export interface Hotel extends BaseEntity {
+export interface Hotel {
+  _id: string;
   name: string;
   address: string;
   contact: string;
   owner: User;
   city: string;
+  createdAt: string;
+  updatedAt: string;
+  __v: number;
 }
 
-// Room types
-export type RoomType = "Single Bed" | "Double Bed" | "Suite" | "Deluxe";
-export type AmenityType =
-  | "Free WiFi"
-  | "Free Breakfast"
-  | "Room Service"
-  | "Mountain View"
-  | "Pool Access";
-
-export interface Room extends BaseEntity {
-  hotel: Hotel;
-  roomType: RoomType;
-  pricePerNight: number;
-  amenities: AmenityType[];
+export interface Room {
+  _id: string;
   images: string[];
-  isAvailable: boolean;
-  description: string;
+  hotel: Hotel;
+  roomType: string;
+  pricePerNight: number;
+  amenities: string[];
+  description?: string;
+  isAvailable?: boolean;
+  maxGuests?: number;
+  createdAt?: string;
+  updatedAt?: string;
+  __v?: number;
 }
 
-// Booking types
-export type BookingStatus = "pending" | "confirmed" | "cancelled" | "completed";
-export type PaymentMethod = "Stripe" | "Pay At Hotel";
-
-export interface Booking extends BaseEntity {
+export interface Booking {
+  _id: string;
   user: User;
-  room: Room;
-  hotel: Hotel;
+  room?: Room;
+  hotel?: Hotel;
   checkInDate: string;
   checkOutDate: string;
-  totalPrice: number;
   guests: number;
-  status: BookingStatus;
-  paymentMethod: PaymentMethod;
-  isPaid: boolean;
+  totalPrice: number;
+  status: "pending" | "confirmed" | "cancelled" | "completed";
+  isPaid?: boolean;
+  paymentMethod?: string;
+  createdAt: string;
+  updatedAt: string;
+  __v?: number;
 }
 
-// Offer types
-export interface ExclusiveOffer {
-  _id: number;
-  title: string;
-  description: string;
-  priceOff: number;
-  expiryDate: string;
-  image: string;
+export interface ApiResponse<T> {
+  success: boolean;
+  data?: T;
+  message?: string;
+  error?: string;
 }
 
-// Testimonial types
-export interface Testimonial {
-  id: number;
-  name: string;
-  address: string;
-  image: string;
-  rating: number;
-  review: string;
+// Form types
+export interface RoomFormData {
+  roomType: string;
+  pricePerNight: string;
+  amenities: Record<string, boolean>;
+  images: Record<string, File | null>;
+  description?: string;
+  maxGuests?: number;
 }
 
-// Dashboard types
-export interface DashboardData {
-  totalBookings: number;
-  totalRevenue: number;
-  bookings: Booking[];
+export interface BookingFormData {
+  checkInDate: string;
+  checkOutDate: string;
+  guests: number;
 }
 
-// Common UI types
-export interface NavLink {
-  name: string;
-  path: string;
+// Utility types
+export type LoadingState = "idle" | "loading" | "success" | "error";
+
+export interface PaginationParams {
+  page: number;
+  limit: number;
+  total?: number;
 }
 
-export interface RoomCommonData {
-  icon: string;
-  title: string;
-  description: string;
-}
-
-// Component props types
-export interface TitleProps {
-  align?: "left" | "center" | "right";
-  font?: string;
-  title: string;
-  subTitle?: string;
-}
-
+// UI Component Types
 export interface ButtonProps {
-  children: React.ReactNode;
   variant?: "primary" | "secondary" | "outline";
   size?: "sm" | "md" | "lg";
+  children: React.ReactNode;
+  onClick?: () => void;
   disabled?: boolean;
   loading?: boolean;
-  onClick?: () => void;
+  type?: "button" | "submit" | "reset";
   className?: string;
 }
 
 export interface StarRatingProps {
-  rating: number;
+  rating?: number;
   maxRating?: number;
   size?: "sm" | "md" | "lg";
   readonly?: boolean;
   onRatingChange?: (rating: number) => void;
+}
+
+export interface TitleProps {
+  title: string;
+  subTitle?: string;
+  align?: "left" | "center" | "right";
+  font?: string;
+  className?: string;
+}
+
+export interface NavLink {
+  name: string;
+  path: string;
+  icon?: string;
+}
+
+// Data Types
+export interface ExclusiveOffer {
+  _id?: number;
+  title: string;
+  description: string;
+  priceOff?: number;
+  image: string;
+  expiryDate?: string;
+}
+
+export interface Testimonial {
+  id: string | number;
+  name: string;
+  address?: string;
+  image?: string;
+  rating: number;
+  review: string;
+}
+
+export interface RoomCommonData {
+  title: string;
+  description: string;
+  icon: string;
+}
+
+export interface DashboardData {
+  totalBookings: number;
+  totalRevenue: number;
+  occupancyRate?: number;
+  bookings: Booking[];
+  recentBookings?: Booking[];
 }

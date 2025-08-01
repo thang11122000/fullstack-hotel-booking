@@ -28,15 +28,15 @@ const MyBooking = () => {
           >
             <div className="flex flex-col md:flex-row">
               <img
-                src={item.room.images[0]}
+                src={item.room?.images?.[0] || ""}
                 alt="hotel"
                 className="min-md:w-44 rounded shadow object-cover"
               />
               <div className="flex flex-col gap-1.5 max-md:mt-3 min-md:ml-4">
                 <p className="font-playfair text-2xl">
-                  {item.hotel.name}
+                  {item.hotel?.name}
                   <span className="font-inter text-sm">
-                    ({item.room.roomType})
+                    ({item.room?.roomType})
                   </span>
                 </p>
                 <div className="flex items-center gap-1 text-sm text-gray-500">
