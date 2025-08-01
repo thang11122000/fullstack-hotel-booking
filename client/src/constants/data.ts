@@ -1,4 +1,4 @@
-import {
+import type {
   ExclusiveOffer,
   Testimonial,
   RoomCommonData,
@@ -139,6 +139,8 @@ export const MOCK_ROOMS: Room[] = [
       "/src/assets/roomImg4.png",
     ],
     isAvailable: true,
+    description:
+      "Luxurious double bed room with stunning mountain views and premium amenities.",
     createdAt: "2025-04-10T06:26:04.013Z",
     updatedAt: "2025-04-10T06:26:04.013Z",
     __v: 0,
@@ -156,6 +158,8 @@ export const MOCK_ROOMS: Room[] = [
       "/src/assets/roomImg1.png",
     ],
     isAvailable: true,
+    description:
+      "Comfortable double bed room with mountain views and pool access.",
     createdAt: "2025-04-10T06:25:22.593Z",
     updatedAt: "2025-04-10T06:25:22.593Z",
     __v: 0,
@@ -173,6 +177,7 @@ export const MOCK_ROOMS: Room[] = [
       "/src/assets/roomImg2.png",
     ],
     isAvailable: true,
+    description: "Cozy double bed room with complimentary breakfast and WiFi.",
     createdAt: "2025-04-10T06:24:06.285Z",
     updatedAt: "2025-04-10T06:24:06.285Z",
     __v: 0,
@@ -190,6 +195,8 @@ export const MOCK_ROOMS: Room[] = [
       "/src/assets/roomImg3.png",
     ],
     isAvailable: true,
+    description:
+      "Affordable single bed room with essential amenities and pool access.",
     createdAt: "2025-04-10T06:23:20.252Z",
     updatedAt: "2025-04-10T06:23:20.252Z",
     __v: 0,

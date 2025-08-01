@@ -40,6 +40,7 @@ export interface Room extends BaseEntity {
   amenities: AmenityType[];
   images: string[];
   isAvailable: boolean;
+  description: string;
 }
 
 // Booking types

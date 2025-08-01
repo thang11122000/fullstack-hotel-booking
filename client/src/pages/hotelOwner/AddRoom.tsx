@@ -3,11 +3,11 @@ import Title from "../../components/Title";
 import { assets } from "../../assets/assets";
 
 const AddRoom = () => {
-  const [images, setImages] = useState({
-    1: null,
-    2: null,
-    3: null,
-    4: null,
+  const [images, setImages] = useState<{ [key: string]: File | null }>({
+    "1": null,
+    "2": null,
+    "3": null,
+    "4": null,
   });
 
   const [inputs, setInputs] = useState({
@@ -43,7 +43,7 @@ const AddRoom = () => {
               accept="image/*"
               hidden
               onChange={(e) =>
-                setImages({ ...images, [key]: e.target.files[0] })
+                setImages({ ...images, [key]: e.target.files?.[0] || null })
               }
             />
           </label>
@@ -83,25 +83,27 @@ const AddRoom = () => {
 
       <p className="text-gray-800 mt-4">Amenities</p>
       <div className="flex flex-col flex-wrap mt-1 text-gray-400 max-w-sm">
-        {Object.entries(inputs.amenities).map((amenity, index) => (
-          <div key={index}>
-            <input
-              type="checkbox"
-              id={`amenities${index + 1}`}
-              checked={inputs.amenities[amenity]}
-              onChange={() =>
-                setInputs({
-                  ...inputs,
-                  amenities: {
-                    ...inputs.amenities,
-                    [amenity]: !inputs.amenities[amenity],
-                  },
-                })
-              }
-            />
-            <label htmlFor={`amenities${index + 1}`}>{amenity}</label>
-          </div>
-        ))}
+        {Object.entries(inputs.amenities).map(
+          ([amenityKey, amenityValue], index) => (
+            <div key={index}>
+              <input
+                type="checkbox"
+                id={`amenities${index + 1}`}
+                checked={amenityValue}
+                onChange={() =>
+                  setInputs({
+                    ...inputs,
+                    amenities: {
+                      ...inputs.amenities,
+                      [amenityKey]: !amenityValue,
+                    },
+                  })
+                }
+              />
+              <label htmlFor={`amenities${index + 1}`}>{amenityKey}</label>
+            </div>
+          )
+        )}
       </div>
 
       <button className="bg-primary text-white px-8 py-4 rounded mt-8 cursor-pointer">

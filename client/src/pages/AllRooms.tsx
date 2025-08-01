@@ -118,7 +118,7 @@ const AllRooms = () => {
                     <img
                       alt="Room Service"
                       className="w-5 h-5"
-                      src={facilityIcons[amenity]}
+                      src={facilityIcons[amenity as keyof typeof facilityIcons]}
                     />
                     <p className="text-xs">{amenity}</p>
                   </div>

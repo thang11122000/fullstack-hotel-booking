@@ -14,11 +14,14 @@ interface Room {
   hotel: {
     name: string;
     address: string;
+    owner?: {
+      image: string;
+    };
   };
   roomType: string;
   pricePerNight: number;
   amenities: string[];
-  description: string;
+  description?: string;
 }
 
 const RoomDetail = () => {
@@ -28,9 +31,11 @@ const RoomDetail = () => {
 
   useEffect(() => {
     const room = roomsDummyData.find((r) => r._id === id);
-    room && setRoom(room);
-    room && setMainImage(room.images[0]);
-  }, []);
+    if (room) {
+      setRoom(room as Room);
+      setMainImage(room.images[0]);
+    }
+  }, [id]);
 
   return (
     room && (
@@ -57,14 +62,15 @@ const RoomDetail = () => {
             <img
               className="w-full rounded-xl shadow-lg object-cover"
               alt="Room Image"
-              src={mainImage}
+              src={mainImage || ""}
             />
           </div>
           <div className="grid grid-cols-2 gap-4 lg:w-1/2 w-full">
-            {room?.image.length > 1 &&
-              room.image.map((image) => {
+            {room?.images.length > 1 &&
+              room.images.map((image, index) => {
                 return (
                   <img
+                    key={index}
                     onClick={() => setMainImage(image)}
                     className="w-full rounded-xl shadow-md object-cover cursor-pointer outline-3 outline-orange-500"
                     alt="Room Image"
@@ -80,13 +86,16 @@ const RoomDetail = () => {
               Experience Luxury Like Never Before
             </h1>
             <div className="flex flex-wrap items-center mt-3 mb-6 gap-4">
-              {room.amenities.map((item) => {
+              {room.amenities.map((item, index) => {
                 return (
-                  <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-gray-100">
+                  <div
+                    key={index}
+                    className="flex items-center gap-2 px-3 py-2 rounded-lg bg-gray-100"
+                  >
                     <img
                       alt="Room Service"
                       className="w-5 h-5"
-                      src={facilityIcons[item]}
+                      src={(facilityIcons as any)[item] || ""}
                     />
                     <p className="text-xs">{item}</p>
                   </div>
@@ -133,7 +142,7 @@ const RoomDetail = () => {
               <input
                 id="guests"
                 className="max-w-20 rounded border border-gray-300 px-3 py-2 mt-1.5 outline-none"
-                placeholder={0}
+                placeholder="0"
                 required
                 type="number"
                 defaultValue={1}
@@ -180,7 +189,7 @@ const RoomDetail = () => {
             <img
               className="h-14 w-14 md:h-18 md:w-18 rounded-full"
               alt="Host"
-              src={room.hotel.owner.image}
+              src={room.hotel.owner?.image || ""}
             />
             <div>
               <p className="text-lg md:text-xl">Hosted by {room.hotel.name}</p>

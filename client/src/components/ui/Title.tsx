@@ -1,5 +1,5 @@
 import React from "react";
-import { TitleProps } from "../../types";
+import type { TitleProps } from "../../types";
 
 const Title: React.FC<TitleProps> = ({
   align = "left",

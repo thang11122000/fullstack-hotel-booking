@@ -1,5 +1,5 @@
 import React from "react";
-import { StarRatingProps } from "../../types";
+import type { StarRatingProps } from "../../types";
 import { icons } from "../../assets";
 
 const StarRating: React.FC<StarRatingProps> = ({
