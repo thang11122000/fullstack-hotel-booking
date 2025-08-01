@@ -1,9 +1,19 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { assets, facilityIcons, roomsDummyData } from "../assets/assets";
 import { useNavigate } from "react-router-dom";
 import StarRating from "../components/StarRating";
 
-const Checkbox = ({ label, selected = false, onChange = () => {} }) => {
+interface CheckboxProps {
+  label: string;
+  selected?: boolean;
+  onChange?: (checked: boolean, label: string) => void;
+}
+
+const Checkbox = ({
+  label,
+  selected = false,
+  onChange = () => {},
+}: CheckboxProps) => {
   return (
     <label className="flex gap-3 items-center cursor-pointer mt-2 text-sm">
       <input
@@ -16,14 +26,24 @@ const Checkbox = ({ label, selected = false, onChange = () => {} }) => {
   );
 };
 
-const RadioButton = ({ label, selected = false, onChange = () => {} }) => {
+interface RadioButtonProps {
+  label: string;
+  selected?: boolean;
+  onChange?: (label: string) => void;
+}
+
+const RadioButton = ({
+  label,
+  selected = false,
+  onChange = () => {},
+}: RadioButtonProps) => {
   return (
     <label className="flex gap-3 items-center cursor-pointer mt-2 text-sm">
       <input
         type="radio"
         name="sortOption"
         checked={selected}
-        onChange={(e) => onChange(label)}
+        onChange={() => onChange(label)}
       />
       <span className="font-light select-none">{label}</span>
     </label>
@@ -59,7 +79,10 @@ const AllRooms = () => {
           </p>
         </div>
         {roomsDummyData.map((room) => (
-          <div className="flex flex-col md:flex-row items-start py-10 gap-6 border-b border-gray-300 last:pb-30 last:border-0">
+          <div
+            key={room._id}
+            className="flex flex-col md:flex-row items-start py-10 gap-6 border-b border-gray-300 last:pb-30 last:border-0"
+          >
             <img
               title="View Room Details"
               alt="hotel-img"
@@ -88,7 +111,10 @@ const AllRooms = () => {
               </div>
               <div className="flex flex-wrap items-center mt-3 mb-6 gap-4">
                 {room.amenities.map((amenity) => (
-                  <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-[#F5F5FF]/70">
+                  <div
+                    key={amenity}
+                    className="flex items-center gap-2 px-3 py-2 rounded-lg bg-[#F5F5FF]/70"
+                  >
                     <img
                       alt="Room Service"
                       className="w-5 h-5"

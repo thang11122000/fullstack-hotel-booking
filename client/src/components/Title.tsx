@@ -1,6 +1,11 @@
-import React from "react";
+interface TitleProps {
+  title: string;
+  subTitle?: string;
+  align?: string;
+  font?: string;
+}
 
-const Title = ({ title, subTitle, align, font }) => {
+const Title = ({ title, subTitle, align, font }: TitleProps) => {
   return (
     <div
       className={`flex flex-col justify-center items-center text-center ${

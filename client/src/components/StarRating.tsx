@@ -1,7 +1,10 @@
-import React from "react";
 import { assets } from "../assets/assets";
 
-const StarRating = ({ rating = 4 }) => {
+interface StarRatingProps {
+  rating?: number;
+}
+
+const StarRating = ({ rating = 4 }: StarRatingProps) => {
   return (
     <>
       {Array(5)

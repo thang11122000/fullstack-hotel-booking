@@ -1,4 +1,3 @@
-import React from "react";
 import Title from "./Title";
 import { assets, exclusiveOffers } from "../assets/assets";
 
@@ -8,6 +7,7 @@ const ExclusiveOffers = () => {
       <div className="flex flex-col md:flex-row items-center justify-between w-full ">
         <Title
           align="left"
+          font="font-playfair"
           title="Exclusive Offers"
           subTitle="Take advantage of our limited-time offers and special packages to enhance your stay and create unforgettable memories."
         ></Title>
@@ -22,8 +22,9 @@ const ExclusiveOffers = () => {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-12">
-        {exclusiveOffers.map((offer, index) => (
+        {exclusiveOffers.map((offer) => (
           <div
+            key={offer._id}
             className="group relative flex flex-col items-start justify-between gap-1 pt-12 md:pt-18 px-4 rounded-xl text-white bg-no-repeat bg-cover bg-center"
             style={{ backgroundImage: `url(${offer.image})` }}
           >

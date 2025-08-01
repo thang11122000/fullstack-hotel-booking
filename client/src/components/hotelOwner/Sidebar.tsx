@@ -1,4 +1,3 @@
-import React from "react";
 import { assets } from "../../assets/assets";
 import { NavLink } from "react-router-dom";
 
@@ -16,7 +15,7 @@ const Sidebar = () => {
           <NavLink
             to={item.path}
             key={index}
-            end="/owner"
+            end={item.path === "/owner"}
             className={({ isActive }) =>
               `flex items-center py-3 px-4 md:px-8 gap-3 ${
                 isActive

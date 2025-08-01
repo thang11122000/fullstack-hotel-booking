@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import Title from "../components/Title";
 import { assets, userBookingsDummyData } from "../assets/assets";
 
@@ -10,6 +10,8 @@ const MyBooking = () => {
       <Title
         title="My Bookings"
         subTitle="Easily manage your past, current, and upcoming hotel reservations in one place. Plan your trips seamlessly with just a few clicks"
+        align="center"
+        font="font-playfair"
       />
       <div className="max-w-6xl mt-8 w-full text-gray-800">
         <div className="hidden md:grid md:grid-cols-[3fr_2fr_1fr] w-full border-b border-gray-300 font-medium text-base py-3">

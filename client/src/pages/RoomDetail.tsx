@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import {
   assets,
@@ -8,10 +8,23 @@ import {
 } from "../assets/assets";
 import StarRating from "../components/StarRating";
 
+interface Room {
+  _id: string;
+  images: string[];
+  hotel: {
+    name: string;
+    address: string;
+  };
+  roomType: string;
+  pricePerNight: number;
+  amenities: string[];
+  description: string;
+}
+
 const RoomDetail = () => {
-  const { id } = useParams();
-  const [room, setRoom] = useState(null);
-  const [mainImage, setMainImage] = useState(null);
+  const { id } = useParams<{ id: string }>();
+  const [room, setRoom] = useState<Room | null>(null);
+  const [mainImage, setMainImage] = useState<string | null>(null);
 
   useEffect(() => {
     const room = roomsDummyData.find((r) => r._id === id);

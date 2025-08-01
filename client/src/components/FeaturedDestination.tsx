@@ -1,4 +1,3 @@
-import React from "react";
 import { roomsDummyData } from "../assets/assets";
 import HotelCard from "./HotelCard";
 import Title from "./Title";
@@ -13,6 +12,8 @@ const FeaturedDestination = () => {
         subTitle={
           "Discover our handpicked selection of exceptional properties around the word, offering unparalleled luxury and unforgettable experiences."
         }
+        align="center"
+        font="font-playfair"
       />
       <div className="flex flex-wrap items-center justify-center gap-6 mt-20">
         {roomsDummyData.slice(0, 4).map((room, index) => (
