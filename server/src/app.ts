@@ -5,8 +5,7 @@ import helmet from "helmet";
 import rateLimit from "express-rate-limit";
 import path from "path";
 import expressStaticGzip from "express-static-gzip";
-import authRoutes from "./routes/auth";
-import messageRoutes from "./routes/message";
+// Removed non-existent route imports
 import { errorHandler } from "./middleware/errorHandler";
 import { logger } from "./utils/logger";
 import { redisService } from "./lib/redis";
