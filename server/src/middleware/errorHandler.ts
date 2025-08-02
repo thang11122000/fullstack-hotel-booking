@@ -6,16 +6,6 @@ export interface AppError extends Error {
   isOperational?: boolean;
 }
 
-export const createError = (
-  message: string,
-  statusCode: number = 500
-): AppError => {
-  const error = new Error(message) as AppError;
-  error.statusCode = statusCode;
-  error.isOperational = true;
-  return error;
-};
-
 export const errorHandler = (
   err: AppError,
   req: Request,
