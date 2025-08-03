@@ -20,6 +20,9 @@ export function createApp() {
   connectMongo();
   const app = express();
 
+  // Trust proxy for rate limiting and proper IP detection
+  app.set("trust proxy", true);
+
   app.use(
     helmet({
       contentSecurityPolicy: {
