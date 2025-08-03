@@ -8,7 +8,7 @@ const MONGODB_URI =
 
 export const connectMongo = async () => {
   try {
-    await mongoose.connect(MONGODB_URI + "/hotel-booking");
+    await mongoose.connect(MONGODB_URI);
     logger.info("✅ Connected to MongoDB");
   } catch (error) {
     logger.error("❌ MongoDB connection failed:", error);
