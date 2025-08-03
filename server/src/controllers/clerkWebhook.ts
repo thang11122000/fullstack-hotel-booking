@@ -1,13 +1,19 @@
-import User from "@/models/User";
 import { Webhook } from "svix";
+import { Request, Response } from "express";
+import User from "../models/User";
 
-const clerkWebhooks = async (req, res) => {
+const clerkWebhooks = async (req: Request, res: Response) => {
   try {
-    const webhook = new Webhook(process.env.CLERK_WEBHOOK_SECRET);
+    const webhookSecret = process.env.CLERK_WEBHOOK_SECRET;
+    if (!webhookSecret) {
+      return res.status(500).json({ error: "Webhook secret not configured" });
+    }
+
+    const webhook = new Webhook(webhookSecret);
     const headers = {
-      "svix-id": req.headers["svix-id"],
-      "svix-timestamp": req.headers["svix-timestamp"],
-      "svix-signature": req.headers["svix-signature"],
+      "svix-id": req.headers["svix-id"] as string,
+      "svix-timestamp": req.headers["svix-timestamp"] as string,
+      "svix-signature": req.headers["svix-signature"] as string,
     };
 
     await webhook.verify(JSON.stringify(req.body), headers);
@@ -41,10 +47,10 @@ const clerkWebhooks = async (req, res) => {
 
     return res.json({ success: true, message: "Webhook Received!" });
   } catch (error) {
-    console.error(error.message);
+    console.error(error instanceof Error ? error.message : error);
     return res.json({
       success: false,
-      error: error.message || "Something went wrong",
+      error: error instanceof Error ? error.message : "Something went wrong",
     });
   }
 };

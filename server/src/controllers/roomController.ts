@@ -1,6 +1,6 @@
 import { Response } from "express";
 import { AuthenticatedRequest } from "@/types";
-import { ResponseHelper } from "@/utils/response";
+import { ResponseHelper } from "../utils/response";
 import { logger } from "@/utils/logger";
 import {
   RoomService,

@@ -5,10 +5,8 @@ import helmet from "helmet";
 import rateLimit from "express-rate-limit";
 import path from "path";
 import expressStaticGzip from "express-static-gzip";
-// Removed non-existent route imports
 import { errorHandler } from "./middleware/errorHandler";
 import { logger } from "./utils/logger";
-import { redisService } from "./lib/redis";
 import os from "os";
 import { connectMongo } from "./lib/mongo";
 import { clerkMiddleware } from "@clerk/express";
@@ -22,7 +20,6 @@ export function createApp() {
   connectMongo();
   const app = express();
 
-  // Enhanced security middleware
   app.use(
     helmet({
       contentSecurityPolicy: {
@@ -38,21 +35,18 @@ export function createApp() {
     })
   );
 
-  // Enhanced rate limiting
   const limiter = rateLimit({
-    windowMs: 5 * 60 * 1000, // 5 minutes
-    max: 1000, // limit each IP to 1000 requests per windowMs
+    windowMs: 5 * 60 * 1000,
+    max: 1000,
     message: "Too many requests from this IP, please try again later.",
     standardHeaders: true,
     legacyHeaders: false,
     skip: (req) => {
-      // Skip rate limiting for health checks
       return req.path === "/api/health";
     },
   });
   app.use(limiter);
 
-  // Specific rate limiting for auth routes
   const authLimiter = rateLimit({
     windowMs: 5 * 60 * 1000,
     max: 100,
@@ -84,21 +78,17 @@ export function createApp() {
 
   app.use(
     compression({
-      level: 9, // Tăng level nén từ 6 lên 9 (maximum)
-      threshold: 1024, // Chỉ nén files > 1KB
+      level: 9,
+      threshold: 1024,
       filter: (req: any, res: any) => {
         if (req.headers["x-no-compression"]) {
           return false;
         }
-        // Nén các file types quan trọng
         const compressible = compression.filter(req, res);
         return compressible;
       },
-      // Configure Brotli compression with proper options
       brotli: {
         params: {
-          // You can set Brotli parameters here using constants
-          // For example, quality level (0-11, higher = better compression but slower)
           [require("zlib").constants.BROTLI_PARAM_QUALITY]: 11,
         },
       },
@@ -144,19 +134,16 @@ export function createApp() {
   app.use("/api/rooms", roomRouter);
   app.use("/api/bookings", bookingRouter);
 
-  // Serve static files với compression headers
   if (process.env.NODE_ENV === "production") {
     const staticPath = path.join(__dirname, "../../client/dist");
 
-    // Serve pre-compressed files với express-static-gzip
     app.use(
       "/",
       expressStaticGzip(staticPath, {
         enableBrotli: true,
-        orderPreference: ["br", "gz"], // Ưu tiên Brotli trước
+        orderPreference: ["br", "gz"],
         serveStatic: {
-          setHeaders: (res, path) => {
-            // Cache static assets for 1 year, except HTML
+          setHeaders: (res: any, path: string) => {
             if (path.endsWith(".html")) {
               res.setHeader(
                 "Cache-Control",
@@ -171,17 +158,14 @@ export function createApp() {
               );
             }
 
-            // Security headers for static assets
             res.setHeader("X-Content-Type-Options", "nosniff");
             res.setHeader("X-Frame-Options", "DENY");
           },
         },
-        // Index fallback for SPA
         index: false,
       })
     );
 
-    // Handle React Router - phải đặt sau static serving
     app.get("*", (req, res) => {
       res.sendFile(path.join(staticPath, "index.html"), {
         headers: {
@@ -203,7 +187,6 @@ export function createApp() {
   app.get("/api/health", async (req, res) => {
     try {
       const startTime = Date.now();
-      const redisHealth = await redisService.exists("health_check");
       const memUsage = process.memoryUsage();
       const responseTime = Date.now() - startTime;
       res.json({
@@ -213,9 +196,6 @@ export function createApp() {
         worker: process.pid,
         uptime: process.uptime(),
         responseTime: `${responseTime}ms`,
-        services: {
-          redis: redisHealth ? "connected" : "disconnected",
-        },
         memory: {
           rss: `${Math.round(memUsage.rss / 1024 / 1024)}MB`,
           heapUsed: `${Math.round(memUsage.heapUsed / 1024 / 1024)}MB`,

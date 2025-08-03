@@ -1,19 +1,25 @@
 import {
-  checkAvailabilityAPI,
-  createBookingAPI,
+  createBooking,
   getHotelBookings,
   getUserBookings,
-} from "@/controllers/bookingController";
-import { registerHotel } from "@/controllers/hotelController";
-import { protect } from "@/middleware/auth";
-import { create } from "domain";
+  getBookings,
+  getBookingById,
+  updateBooking,
+  cancelBooking,
+  confirmBooking,
+} from "../controllers/bookingController";
+import { protect } from "../middleware/auth";
 import express from "express";
 
 const bookingRouter = express.Router();
 
-bookingRouter.post("/check-availability", checkAvailabilityAPI);
-bookingRouter.post("/book", protect, createBookingAPI);
+bookingRouter.post("/", protect, createBooking);
+bookingRouter.get("/", protect, getBookings);
 bookingRouter.get("/user", protect, getUserBookings);
 bookingRouter.get("/hotel", protect, getHotelBookings);
+bookingRouter.get("/:id", protect, getBookingById);
+bookingRouter.put("/:id", protect, updateBooking);
+bookingRouter.delete("/:id", protect, cancelBooking);
+bookingRouter.patch("/:id/confirm", protect, confirmBooking);
 
 export default bookingRouter;

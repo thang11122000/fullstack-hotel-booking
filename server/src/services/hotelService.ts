@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
-import Hotel, { IHotel } from "@/models/Hotel";
-import User from "@/models/User";
-import { logger } from "@/utils/logger";
+import Hotel, { IHotel } from "../models/Hotel";
+import User from "../models/User";
+import { logger } from "../utils/logger";
 
 export interface CreateHotelData {
   name: string;

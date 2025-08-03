@@ -1,8 +1,8 @@
 import mongoose from "mongoose";
-import Booking, { IBooking } from "@/models/Booking";
-import Room from "@/models/Room";
-import Hotel from "@/models/Hotel";
-import { logger } from "@/utils/logger";
+import Booking, { IBooking } from "../models/Booking";
+import Room from "../models/Room";
+import Hotel from "../models/Hotel";
+import { logger } from "../utils/logger";
 
 export interface CreateBookingData {
   user: mongoose.Types.ObjectId;

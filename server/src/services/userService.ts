@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
-import User, { IUser } from "@/models/User";
-import { logger } from "@/utils/logger";
+import User, { IUser } from "../models/User";
+import { logger } from "../utils/logger";
 
 export interface CreateUserData {
   username: string;
@@ -34,8 +34,6 @@ export interface UserResponse {
   image?: string;
   role: "user" | "hotelOwner";
   recentSearchedCities: string[];
-  isActive: boolean;
-  lastLoginAt?: Date;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -244,28 +242,6 @@ export class UserService {
   }
 
   /**
-   * Update user's last login
-   */
-  static async updateLastLogin(id: string): Promise<IUser | null> {
-    try {
-      if (!mongoose.Types.ObjectId.isValid(id)) {
-        throw new Error("Invalid user ID");
-      }
-
-      const user = await User.findById(id);
-      if (!user) {
-        throw new Error("User not found");
-      }
-
-      await user.updateLastLogin();
-      return user;
-    } catch (error) {
-      logger.error("Error updating last login:", error);
-      throw error;
-    }
-  }
-
-  /**
    * Add recent searched city
    */
   static async addRecentSearchedCity(
@@ -286,32 +262,6 @@ export class UserService {
       return user;
     } catch (error) {
       logger.error("Error adding recent searched city:", error);
-      throw error;
-    }
-  }
-
-  /**
-   * Get active users
-   */
-  static async getActiveUsers(): Promise<IUser[]> {
-    try {
-      const users = await User.findActiveUsers();
-      return users;
-    } catch (error) {
-      logger.error("Error getting active users:", error);
-      throw error;
-    }
-  }
-
-  /**
-   * Get users by role
-   */
-  static async getUsersByRole(role: string): Promise<IUser[]> {
-    try {
-      const users = await User.findByRole(role);
-      return users;
-    } catch (error) {
-      logger.error("Error getting users by role:", error);
       throw error;
     }
   }
@@ -364,8 +314,6 @@ export class UserService {
       image: user.image,
       role: user.role,
       recentSearchedCities: user.recentSearchedCities,
-      isActive: user.isActive,
-      lastLoginAt: user.lastLoginAt,
       createdAt: user.createdAt,
       updatedAt: user.updatedAt,
     };

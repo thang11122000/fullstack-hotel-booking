@@ -1,8 +1,8 @@
 import { Response, NextFunction } from "express";
-import User from "@/models/User";
-import { AuthenticatedRequest } from "@/types";
-import { ResponseHelper } from "@/utils/response";
-import { logger } from "@/utils/logger";
+import User from "../models/User";
+import { AuthenticatedRequest } from "../types";
+import { ResponseHelper } from "../utils/response";
+import { logger } from "../utils/logger";
 
 export const protect = async (
   req: AuthenticatedRequest,

@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import Joi from "joi";
-import { ResponseHelper } from "@/utils/response";
+import { ResponseHelper } from "../utils/response";
 
 export const validate = (
   schema: Joi.ObjectSchema,
@@ -15,7 +15,7 @@ export const validate = (
     });
 
     if (error) {
-      const errors = error.details.map((detail) => ({
+      const errors = error.details.map((detail: any) => ({
         field: detail.path.join("."),
         message: detail.message,
         value: detail.context?.value,
@@ -26,7 +26,7 @@ export const validate = (
 
     // Replace the original data with validated and sanitized data
     req[source] = value;
-    next();
+    return next();
   };
 };
 
