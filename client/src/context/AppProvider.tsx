@@ -37,6 +37,8 @@ export const AppProvider = ({ children }: AppProviderProps) => {
         headers: { Authorization: `Bearer ${token}` },
       });
 
+      console.log(data);
+
       if (data.success) {
         setIsOwner(data.role === "hotelOwner");
         setSearchedCities(data.recentSearchedCities || []);

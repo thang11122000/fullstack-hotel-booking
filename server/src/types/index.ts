@@ -4,7 +4,7 @@ import { IUser } from "../models/User";
 // Extend Express Request interface to include user and auth
 export interface AuthenticatedRequest extends Request {
   user?: IUser;
-  auth?: {
+  auth?: () => {
     userId: string;
   };
   requestId?: string;

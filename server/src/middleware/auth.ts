@@ -10,13 +10,13 @@ export const protect = async (
   next: NextFunction
 ): Promise<Response | void> => {
   try {
-    const { userId } = req.auth || {};
+    const { userId } = req.auth?.() || {};
 
     if (!userId) {
       return ResponseHelper.unauthorized(res, "Authentication required");
     }
 
-    const user = await User.findById(userId);
+    const user = await User.findOne({ id: userId });
 
     if (!user) {
       return ResponseHelper.unauthorized(res, "User not found");
