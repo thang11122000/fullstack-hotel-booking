@@ -6,7 +6,6 @@ import { logger } from "./utils/logger";
 const numCPUs = os.cpus().length;
 const isProduction = process.env.NODE_ENV === "production";
 const isVercel = !!process.env.VERCEL;
-console.log("isVercel", isVercel);
 const app = createApp();
 
 if (!isVercel) {
