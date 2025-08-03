@@ -20,7 +20,11 @@ export function createApp() {
   connectMongo();
   const app = express();
 
-  app.set("trust proxy", true);
+  if (process.env.NODE_ENV === "production") {
+    app.set("trust proxy", 1);
+  } else {
+    app.set("trust proxy", false);
+  }
 
   app.use(
     helmet({
@@ -46,6 +50,10 @@ export function createApp() {
     skip: (req) => {
       return req.path === "/api/health";
     },
+    keyGenerator: (req) => {
+      // Use the real IP address, falling back to connection IP
+      return req.ip || req.connection.remoteAddress || "unknown";
+    },
   });
   app.use(limiter);
 
@@ -54,6 +62,9 @@ export function createApp() {
     max: 100,
     message: "Too many authentication attempts, please try again later.",
     skipSuccessfulRequests: true,
+    keyGenerator: (req) => {
+      return req.ip || req.connection.remoteAddress || "unknown";
+    },
   });
 
   app.use(
