@@ -1,14 +1,14 @@
 import { Response } from "express";
-import { AuthenticatedRequest } from "@/types";
+import { AuthenticatedRequest } from "../types";
 import { ResponseHelper } from "../utils/response";
-import { logger } from "@/utils/logger";
+import { logger } from "../utils/logger";
 import {
   RoomService,
   CreateRoomData,
   RoomQuery,
   AvailabilityQuery,
-} from "@/services/roomService";
-import { HotelService } from "@/services/hotelService";
+} from "../services/roomService";
+import { HotelService } from "../services/hotelService";
 import { validationResult } from "express-validator";
 
 /**

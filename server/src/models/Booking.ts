@@ -1,4 +1,4 @@
-import mongoose, { Document, Schema } from "mongoose";
+import mongoose, { Document, Schema, Model } from "mongoose";
 
 export interface IBooking extends Document {
   user: mongoose.Types.ObjectId;
@@ -15,6 +15,23 @@ export interface IBooking extends Document {
   cancellationReason?: string;
   createdAt: Date;
   updatedAt: Date;
+  // Instance methods
+  cancel(reason: string): Promise<IBooking>;
+  confirm(): Promise<IBooking>;
+  complete(): Promise<IBooking>;
+  calculateNights(): number;
+}
+
+export interface IBookingModel extends Model<IBooking> {
+  // Static methods
+  findByUser(userId: mongoose.Types.ObjectId): Promise<IBooking[]>;
+  findByHotel(hotelId: mongoose.Types.ObjectId): Promise<IBooking[]>;
+  findActiveBookings(): Promise<IBooking[]>;
+  checkRoomAvailability(
+    roomId: mongoose.Types.ObjectId,
+    checkIn: Date,
+    checkOut: Date
+  ): Promise<IBooking | null>;
 }
 
 const bookingSchema = new Schema<IBooking>(
@@ -193,4 +210,7 @@ bookingSchema.methods.calculateNights = function () {
   return Math.ceil(timeDiff / (1000 * 3600 * 24));
 };
 
-export default mongoose.model<IBooking>("Booking", bookingSchema);
+export default mongoose.model<IBooking, IBookingModel>(
+  "Booking",
+  bookingSchema
+);

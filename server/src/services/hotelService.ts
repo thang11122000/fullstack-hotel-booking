@@ -193,7 +193,6 @@ export class HotelService {
       if (hotel) {
         // Update user role back to regular user
         await User.findByIdAndUpdate(ownerId, { role: "user" });
-        logger.info(`Hotel deleted successfully: ${hotel._id}`);
         return true;
       }
 
@@ -207,18 +206,18 @@ export class HotelService {
   /**
    * Get hotels by city
    */
-  static async getHotelsByCity(city: string): Promise<IHotel[]> {
-    try {
-      const hotels = await Hotel.findByCity(city).populate(
-        "owner",
-        "username email"
-      );
-      return hotels;
-    } catch (error) {
-      logger.error("Error getting hotels by city:", error);
-      throw error;
-    }
-  }
+  // static async getHotelsByCity(city: string): Promise<IHotel[]> {
+  //   try {
+  //     const hotels = await Hotel.findByCity(city).populate(
+  //       "owner",
+  //       "username email"
+  //     );
+  //     return hotels;
+  //   } catch (error) {
+  //     logger.error("Error getting hotels by city:", error);
+  //     throw error;
+  //   }
+  // }
 
   /**
    * Search hotels with text search

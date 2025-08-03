@@ -15,6 +15,13 @@ export interface CreateBookingData {
   specialRequests?: string;
 }
 
+export interface UpdateBookingData extends Partial<CreateBookingData> {
+  totalPrice?: number;
+  status?: "pending" | "confirmed" | "cancelled" | "completed";
+  isPaid?: boolean;
+  cancellationReason?: string;
+}
+
 export interface BookingQuery {
   user?: string;
   hotel?: string;
@@ -221,7 +228,7 @@ export class BookingService {
    */
   static async updateBooking(
     id: string,
-    updateData: Partial<CreateBookingData>
+    updateData: UpdateBookingData
   ): Promise<IBooking | null> {
     try {
       if (!mongoose.Types.ObjectId.isValid(id)) {

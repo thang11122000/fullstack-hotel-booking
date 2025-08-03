@@ -1,4 +1,4 @@
-import mongoose, { Document, Schema } from "mongoose";
+import mongoose, { Document, Schema, Model } from "mongoose";
 
 export interface IRoom extends Document {
   hotel: mongoose.Types.ObjectId;
@@ -11,6 +11,12 @@ export interface IRoom extends Document {
   description?: string;
   createdAt: Date;
   updatedAt: Date;
+  toggleAvailability(): Promise<IRoom>;
+}
+
+export interface IRoomModel extends Model<IRoom> {
+  findAvailableByHotel(hotelId: mongoose.Types.ObjectId): Promise<IRoom[]>;
+  findByPriceRange(minPrice: number, maxPrice: number): Promise<IRoom[]>;
 }
 
 const roomSchema = new Schema<IRoom>(
@@ -126,4 +132,7 @@ roomSchema.methods.toggleAvailability = function () {
   return this.save();
 };
 
-export default mongoose.model<IRoom>("Room", roomSchema);
+export default mongoose.model<IRoom, IRoomModel>(
+  "Room",
+  roomSchema
+) as IRoomModel;

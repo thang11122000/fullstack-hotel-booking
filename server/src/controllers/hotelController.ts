@@ -1,12 +1,12 @@
 import { Response } from "express";
-import { AuthenticatedRequest } from "@/types";
+import { AuthenticatedRequest } from "../types";
 import { ResponseHelper } from "../utils/response";
-import { logger } from "@/utils/logger";
+import { logger } from "../utils/logger";
 import {
   HotelService,
   CreateHotelData,
   HotelQuery,
-} from "@/services/hotelService";
+} from "../services/hotelService";
 import { validationResult } from "express-validator";
 
 export const registerHotel = async (

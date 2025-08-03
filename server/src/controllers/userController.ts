@@ -1,5 +1,5 @@
 import { Response } from "express";
-import { AuthenticatedRequest } from "@/types";
+import { AuthenticatedRequest } from "../types";
 import { ResponseHelper } from "../utils/response";
 import { validationResult } from "express-validator";
 import { logger } from "../utils/logger";
