@@ -2,11 +2,6 @@ import {
   createBooking,
   getHotelBookings,
   getUserBookings,
-  getBookings,
-  getBookingById,
-  updateBooking,
-  cancelBooking,
-  confirmBooking,
   checkAvailability,
 } from "../controllers/bookingController";
 import { protect } from "../middleware/auth";

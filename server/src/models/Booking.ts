@@ -13,18 +13,12 @@ export interface IBooking extends Document {
   isPaid: boolean;
   createdAt: Date;
   updatedAt: Date;
-  // Instance methods
-  cancel(reason: string): Promise<IBooking>;
-  confirm(): Promise<IBooking>;
-  complete(): Promise<IBooking>;
-  calculateNights(): number;
 }
 
 export interface IBookingModel extends Model<IBooking> {
   // Static methods
   findByUser(userId: mongoose.Types.ObjectId): Promise<IBooking[]>;
   findByHotel(hotelId: mongoose.Types.ObjectId): Promise<IBooking[]>;
-  findActiveBookings(): Promise<IBooking[]>;
   checkRoomAvailability(
     roomId: mongoose.Types.ObjectId,
     checkIn: Date,
@@ -77,17 +71,19 @@ const bookingSchema = new Schema<IBooking>(
     totalPrice: {
       type: Number,
       required: [true, "Total price is required"],
+      min: [0, "Total price must be a positive number"],
     },
     guests: {
       type: Number,
       required: [true, "Number of guests is required"],
+      min: [1, "Number of guests must be at least 1"],
+      max: [10, "Number of guests cannot exceed 10"],
     },
     status: {
       type: String,
       enum: {
         values: ["pending", "confirmed", "cancelled"],
-        message:
-          "Status must be one of: pending, confirmed, cancelled, completed",
+        message: "Status must be one of: pending, confirmed, cancelled",
       },
       default: "pending",
       index: true,
@@ -127,16 +123,6 @@ bookingSchema.index({ room: 1, checkInDate: 1, checkOutDate: 1 });
 bookingSchema.index({ checkInDate: 1, checkOutDate: 1 });
 bookingSchema.index({ createdAt: -1 });
 
-// Pre-save middleware for validation
-bookingSchema.pre("save", function (next) {
-  if (this.status === "cancelled") {
-    return next(
-      new Error("Cancellation reason is required when status is cancelled")
-    );
-  }
-  next();
-});
-
 // Static methods
 bookingSchema.statics.findByUser = function (userId: mongoose.Types.ObjectId) {
   return this.find({ user: userId }).populate("room hotel");
@@ -146,10 +132,6 @@ bookingSchema.statics.findByHotel = function (
   hotelId: mongoose.Types.ObjectId
 ) {
   return this.find({ hotel: hotelId }).populate("user room");
-};
-
-bookingSchema.statics.findActiveBookings = function () {
-  return this.find({ status: { $in: ["pending", "confirmed"] } });
 };
 
 bookingSchema.statics.checkRoomAvailability = function (
@@ -165,28 +147,6 @@ bookingSchema.statics.checkRoomAvailability = function (
       { checkInDate: { $lte: checkIn }, checkOutDate: { $gte: checkOut } },
     ],
   });
-};
-
-// Instance methods
-bookingSchema.methods.cancel = function (reason: string) {
-  this.status = "cancelled";
-  this.cancellationReason = reason;
-  return this.save();
-};
-
-bookingSchema.methods.confirm = function () {
-  this.status = "confirmed";
-  return this.save();
-};
-
-bookingSchema.methods.complete = function () {
-  this.status = "completed";
-  return this.save();
-};
-
-bookingSchema.methods.calculateNights = function () {
-  const timeDiff = this.checkOutDate.getTime() - this.checkInDate.getTime();
-  return Math.ceil(timeDiff / (1000 * 3600 * 24));
 };
 
 export default mongoose.model<IBooking, IBookingModel>(

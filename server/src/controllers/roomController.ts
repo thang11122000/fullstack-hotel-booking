@@ -2,12 +2,7 @@ import { Response } from "express";
 import { AuthenticatedRequest } from "../types";
 import { ResponseHelper } from "../utils/response";
 import { logger } from "../utils/logger";
-import {
-  RoomService,
-  CreateRoomData,
-  RoomQuery,
-  AvailabilityQuery,
-} from "../services/roomService";
+import { RoomService, CreateRoomData } from "../services/roomService";
 import { HotelService } from "../services/hotelService";
 import { validationResult } from "express-validator";
 import cloudinary from "../lib/cloudinary";
@@ -91,90 +86,6 @@ export const getOwnerRooms = async (
   } catch (error) {
     logger.error("Get rooms error:", error);
     return ResponseHelper.error(res, "Failed to retrieve rooms");
-  }
-};
-
-/**
- * Get room by ID
- */
-export const getRoomById = async (
-  req: AuthenticatedRequest,
-  res: Response
-): Promise<Response> => {
-  try {
-    const { id } = req.params;
-    const room = await RoomService.getRoomById(id);
-
-    if (!room) {
-      return ResponseHelper.notFound(res, "Room not found");
-    }
-
-    return ResponseHelper.success(res, room, "Room retrieved successfully");
-  } catch (error: any) {
-    logger.error("Get room by ID error:", error);
-
-    if (error.message === "Invalid room ID") {
-      return ResponseHelper.validationError(res, [{ msg: error.message }]);
-    }
-
-    return ResponseHelper.error(res, "Failed to retrieve room");
-  }
-};
-
-/**
- * Get rooms by hotel
- */
-export const getRoomsByHotel = async (
-  req: AuthenticatedRequest,
-  res: Response
-): Promise<Response> => {
-  try {
-    const { hotelId } = req.params;
-    const rooms = await RoomService.getRoomsByHotel(hotelId);
-
-    return ResponseHelper.success(
-      res,
-      rooms,
-      "Hotel rooms retrieved successfully"
-    );
-  } catch (error: any) {
-    logger.error("Get rooms by hotel error:", error);
-
-    if (error.message === "Invalid hotel ID") {
-      return ResponseHelper.validationError(res, [{ msg: error.message }]);
-    }
-
-    return ResponseHelper.error(res, "Failed to retrieve hotel rooms");
-  }
-};
-
-/**
- * Get available rooms by hotel
- */
-export const getAvailableRoomsByHotel = async (
-  req: AuthenticatedRequest,
-  res: Response
-): Promise<Response> => {
-  try {
-    const { hotelId } = req.params;
-    const rooms = await RoomService.getAvailableRoomsByHotel(hotelId);
-
-    return ResponseHelper.success(
-      res,
-      rooms,
-      "Available hotel rooms retrieved successfully"
-    );
-  } catch (error: any) {
-    logger.error("Get available rooms by hotel error:", error);
-
-    if (error.message === "Invalid hotel ID") {
-      return ResponseHelper.validationError(res, [{ msg: error.message }]);
-    }
-
-    return ResponseHelper.error(
-      res,
-      "Failed to retrieve available hotel rooms"
-    );
   }
 };
 
@@ -308,108 +219,6 @@ export const toggleRoomAvailability = async (
     }
 
     return ResponseHelper.error(res, "Failed to toggle room availability");
-  }
-};
-
-/**
- * Check room availability
- */
-export const checkRoomAvailability = async (
-  req: AuthenticatedRequest,
-  res: Response
-): Promise<Response> => {
-  try {
-    const { id } = req.params;
-    const { checkIn, checkOut } = req.query;
-
-    if (!checkIn || !checkOut) {
-      return ResponseHelper.validationError(res, [
-        { msg: "Check-in and check-out dates are required" },
-      ]);
-    }
-
-    const checkInDate = new Date(checkIn as string);
-    const checkOutDate = new Date(checkOut as string);
-
-    if (checkInDate >= checkOutDate) {
-      return ResponseHelper.validationError(res, [
-        { msg: "Check-out date must be after check-in date" },
-      ]);
-    }
-
-    const isAvailable = await RoomService.checkAvailability(
-      id,
-      checkInDate,
-      checkOutDate
-    );
-
-    return ResponseHelper.success(
-      res,
-      { isAvailable, checkIn: checkInDate, checkOut: checkOutDate },
-      "Room availability checked successfully"
-    );
-  } catch (error: any) {
-    logger.error("Check room availability error:", error);
-
-    if (error.message === "Invalid room ID") {
-      return ResponseHelper.validationError(res, [{ msg: error.message }]);
-    }
-
-    return ResponseHelper.error(res, "Failed to check room availability");
-  }
-};
-
-/**
- * Search available rooms
- */
-export const searchAvailableRooms = async (
-  req: AuthenticatedRequest,
-  res: Response
-): Promise<Response> => {
-  try {
-    const { checkIn, checkOut, guests, hotel } = req.query;
-
-    if (!checkIn || !checkOut || !guests) {
-      return ResponseHelper.validationError(res, [
-        {
-          msg: "Check-in date, check-out date, and number of guests are required",
-        },
-      ]);
-    }
-
-    const checkInDate = new Date(checkIn as string);
-    const checkOutDate = new Date(checkOut as string);
-    const guestCount = parseInt(guests as string);
-
-    if (checkInDate >= checkOutDate) {
-      return ResponseHelper.validationError(res, [
-        { msg: "Check-out date must be after check-in date" },
-      ]);
-    }
-
-    if (guestCount < 1) {
-      return ResponseHelper.validationError(res, [
-        { msg: "Number of guests must be at least 1" },
-      ]);
-    }
-
-    const query: AvailabilityQuery = {
-      checkIn: checkInDate,
-      checkOut: checkOutDate,
-      guests: guestCount,
-      hotel: hotel as string,
-    };
-
-    const rooms = await RoomService.searchAvailableRooms(query);
-
-    return ResponseHelper.success(
-      res,
-      rooms,
-      "Available rooms retrieved successfully"
-    );
-  } catch (error) {
-    logger.error("Search available rooms error:", error);
-    return ResponseHelper.error(res, "Failed to search available rooms");
   }
 };
 

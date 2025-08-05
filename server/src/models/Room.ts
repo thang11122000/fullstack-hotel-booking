@@ -12,10 +12,7 @@ export interface IRoom extends Document {
   toggleAvailability(): Promise<IRoom>;
 }
 
-export interface IRoomModel extends Model<IRoom> {
-  findAvailableByHotel(hotelId: mongoose.Types.ObjectId): Promise<IRoom[]>;
-  findByPriceRange(minPrice: number, maxPrice: number): Promise<IRoom[]>;
-}
+export interface IRoomModel extends Model<IRoom> {}
 
 const roomSchema = new Schema<IRoom>(
   {
@@ -28,11 +25,15 @@ const roomSchema = new Schema<IRoom>(
     roomType: {
       type: String,
       required: [true, "Room type is required"],
+      trim: true,
+      minlength: [2, "Room type must be at least 2 characters long"],
+      maxlength: [50, "Room type cannot exceed 50 characters"],
       index: true,
     },
     pricePerNight: {
       type: Number,
       required: [true, "Price per night is required"],
+      min: [0, "Price per night must be a positive number"],
       index: true,
     },
     amenities: {
@@ -80,24 +81,6 @@ const roomSchema = new Schema<IRoom>(
 // Compound indexes for better query performance
 roomSchema.index({ hotel: 1, isAvailable: 1 });
 roomSchema.index({ roomType: 1, pricePerNight: 1 });
-roomSchema.index({ pricePerNight: 1, maxGuests: 1 });
-
-// Static methods
-roomSchema.statics.findAvailableByHotel = function (
-  hotelId: mongoose.Types.ObjectId
-) {
-  return this.find({ hotel: hotelId, isAvailable: true });
-};
-
-roomSchema.statics.findByPriceRange = function (
-  minPrice: number,
-  maxPrice: number
-) {
-  return this.find({
-    pricePerNight: { $gte: minPrice, $lte: maxPrice },
-    isAvailable: true,
-  });
-};
 
 // Instance methods
 roomSchema.methods.toggleAvailability = function () {

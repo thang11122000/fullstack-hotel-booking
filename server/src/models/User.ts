@@ -21,15 +21,23 @@ const userSchema = new Schema<IUser>(
     },
     username: {
       type: String,
-      required: true,
+      required: [true, "Username is required"],
       trim: true,
+      minlength: [2, "Username must be at least 2 characters long"],
+      maxlength: [50, "Username cannot exceed 50 characters"],
     },
     email: {
       type: String,
-      required: true,
+      required: [true, "Email is required"],
       unique: true,
       trim: true,
       lowercase: true,
+      validate: {
+        validator: function (email: string) {
+          return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+        },
+        message: "Please enter a valid email address",
+      },
     },
     image: {
       type: String,
@@ -48,8 +56,8 @@ const userSchema = new Schema<IUser>(
 );
 
 // Compound indexes
-userSchema.index({ role: 1, isActive: 1 });
-userSchema.index({ email: 1, isActive: 1 });
+userSchema.index({ role: 1 });
+userSchema.index({ email: 1 });
 
 userSchema.methods.addRecentSearchedCity = function (city: string) {
   const cityTrimmed = city.trim();

@@ -75,13 +75,4 @@ hotelSchema.index({ city: 1, createdAt: -1 });
 hotelSchema.index({ owner: 1 }, { unique: true });
 hotelSchema.index({ name: "text", address: "text", city: "text" });
 
-// Static methods
-hotelSchema.statics.findByCity = function (city: string) {
-  return this.find({ city: new RegExp(city, "i") });
-};
-
-hotelSchema.statics.findByOwner = function (ownerId: mongoose.Types.ObjectId) {
-  return this.findOne({ owner: ownerId });
-};
-
 export default mongoose.model<IHotel>("Hotel", hotelSchema);
