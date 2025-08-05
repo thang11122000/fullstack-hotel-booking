@@ -5,6 +5,7 @@ import type { ReactNode } from "react";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 import type { AppContextType } from "./app.types";
+import type { ApiResponse, Room, User } from "../types";
 import { AppContext } from "./AppContext";
 
 axios.defaults.baseURL = import.meta.env.VITE_BACKEND_URL;
@@ -22,22 +23,25 @@ export const AppProvider = ({ children }: AppProviderProps) => {
   const [isOwner, setIsOwner] = useState<boolean>(false);
   const [showHotelReg, setShowHotelReg] = useState<boolean>(false);
   const [searchedCities, setSearchedCities] = useState<string[]>([]);
-  const [rooms, setRooms] = useState([]);
+  const [rooms, setRooms] = useState<Room[]>([]);
 
-  const fetchRooms = async () => {
+  const fetchRooms = async (): Promise<void> => {
     try {
-      const { data } = await axios.get("/api/rooms");
-      if (data.success) {
+      const { data } = await axios.get<ApiResponse<Room[]>>("/api/rooms");
+      if (data.success && data.data) {
         setRooms(data.data);
       } else {
-        toast.error(data.message);
+        toast.error(data.message || "Failed to fetch rooms");
       }
-    } catch (error) {
-      toast.error(error.message);
+    } catch (error: unknown) {
+      const errorMessage =
+        error instanceof Error ? error.message : "Failed to fetch rooms";
+      toast.error(errorMessage);
+      console.error("Fetch rooms error:", error);
     }
   };
 
-  const fetchUser = useCallback(async () => {
+  const fetchUser = useCallback(async (): Promise<void> => {
     if (!user) return;
 
     try {
@@ -47,22 +51,30 @@ export const AppProvider = ({ children }: AppProviderProps) => {
         return;
       }
 
-      const { data } = await axios.get("/api/user", {
+      const { data } = await axios.get<ApiResponse<User>>("/api/user", {
         headers: { Authorization: `Bearer ${token}` },
       });
 
-      if (data.success) {
+      if (data.success && data.data) {
         const { role, recentSearchedCities } = data.data;
         setIsOwner(role === "hotelOwner");
         setSearchedCities(recentSearchedCities || []);
+      } else {
+        console.warn("Failed to fetch user data:", data.message);
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Failed to fetch user data:", error);
-      toast.error(
-        error?.response?.data?.message ||
-          error?.message ||
-          "Failed to fetch user data"
-      );
+
+      // More specific error handling
+      if (axios.isAxiosError(error)) {
+        const errorMessage =
+          error.response?.data?.message ||
+          error.message ||
+          "Failed to fetch user data";
+        toast.error(errorMessage);
+      } else {
+        toast.error("An unexpected error occurred while fetching user data");
+      }
     }
   }, [getToken, user]);
 
