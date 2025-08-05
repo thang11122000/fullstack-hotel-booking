@@ -22,6 +22,20 @@ export const AppProvider = ({ children }: AppProviderProps) => {
   const [isOwner, setIsOwner] = useState<boolean>(false);
   const [showHotelReg, setShowHotelReg] = useState<boolean>(false);
   const [searchedCities, setSearchedCities] = useState<string[]>([]);
+  const [rooms, setRooms] = useState([]);
+
+  const fetchRooms = async () => {
+    try {
+      const { data } = await axios.get("/api/rooms");
+      if (data.success) {
+        setRooms(data.data);
+      } else {
+        toast.error(data.message);
+      }
+    } catch (error) {
+      toast.error(error.message);
+    }
+  };
 
   const fetchUser = useCallback(async () => {
     if (!user) return;
@@ -37,11 +51,10 @@ export const AppProvider = ({ children }: AppProviderProps) => {
         headers: { Authorization: `Bearer ${token}` },
       });
 
-      console.log(data);
-
       if (data.success) {
-        setIsOwner(data.role === "hotelOwner");
-        setSearchedCities(data.recentSearchedCities || []);
+        const { role, recentSearchedCities } = data.data;
+        setIsOwner(role === "hotelOwner");
+        setSearchedCities(recentSearchedCities || []);
       }
     } catch (error: any) {
       console.error("Failed to fetch user data:", error);
@@ -57,6 +70,10 @@ export const AppProvider = ({ children }: AppProviderProps) => {
     fetchUser();
   }, [fetchUser]);
 
+  useEffect(() => {
+    fetchRooms();
+  }, []);
+
   const value: AppContextType = {
     currency,
     navigate,
@@ -69,6 +86,8 @@ export const AppProvider = ({ children }: AppProviderProps) => {
     setShowHotelReg,
     searchedCities,
     setSearchedCities,
+    rooms,
+    setRooms,
   };
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;

@@ -10,6 +10,7 @@ import {
 } from "../services/roomService";
 import { HotelService } from "../services/hotelService";
 import { validationResult } from "express-validator";
+import cloudinary from "../lib/cloudinary";
 
 /**
  * Create a new room
@@ -19,18 +20,7 @@ export const createRoom = async (
   res: Response
 ): Promise<Response> => {
   try {
-    // Check validation errors
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return ResponseHelper.validationError(res, errors.array());
-    }
-
-    if (!req.user) {
-      return ResponseHelper.unauthorized(res, "User not authenticated");
-    }
-
-    // Verify user owns the hotel
-    const hotel = await HotelService.getHotelByOwner(req.user._id);
+    const hotel = await HotelService.getHotelByOwner(req.user?._id);
     if (!hotel) {
       return ResponseHelper.forbidden(
         res,
@@ -38,22 +28,23 @@ export const createRoom = async (
       );
     }
 
-    const {
-      roomType,
-      pricePerNight,
-      amenities,
-      images,
-      maxGuests,
-      description,
-    } = req.body;
+    const { roomType, pricePerNight, amenities } = req.body;
+
+    const files = Array.isArray(req.files) ? req.files : [];
+
+    const uploadImages = files.map(async (file) => {
+      const response = await cloudinary.uploader.upload(file.path);
+      return response.secure_url;
+    });
+
+    const images = await Promise.all(uploadImages);
+
     const roomData: CreateRoomData = {
       hotel: hotel._id,
       roomType,
-      pricePerNight,
-      amenities: amenities || [],
-      images: images || [],
-      maxGuests,
-      description,
+      pricePerNight: parseFloat(pricePerNight),
+      amenities: JSON.parse(amenities),
+      images: images,
     };
 
     const room = await RoomService.createRoom(roomData);
@@ -73,35 +64,30 @@ export const getRooms = async (
   res: Response
 ): Promise<Response> => {
   try {
-    const query: RoomQuery = {
-      hotel: req.query.hotel as string,
-      roomType: req.query.roomType as string,
-      minPrice: req.query.minPrice
-        ? parseFloat(req.query.minPrice as string)
-        : undefined,
-      maxPrice: req.query.maxPrice
-        ? parseFloat(req.query.maxPrice as string)
-        : undefined,
-      maxGuests: req.query.maxGuests
-        ? parseInt(req.query.maxGuests as string)
-        : undefined,
-      isAvailable: req.query.isAvailable
-        ? req.query.isAvailable === "true"
-        : undefined,
-      page: parseInt(req.query.page as string) || 1,
-      limit: parseInt(req.query.limit as string) || 10,
-      sortBy: (req.query.sortBy as string) || "createdAt",
-      sortOrder: (req.query.sortOrder as "asc" | "desc") || "desc",
-    };
+    const rooms = await RoomService.getRooms();
+    return ResponseHelper.success(res, rooms, "Rooms retrieved successfully");
+  } catch (error) {
+    logger.error("Get rooms error:", error);
+    return ResponseHelper.error(res, "Failed to retrieve rooms");
+  }
+};
 
-    const result = await RoomService.getRooms(query);
+export const getOwnerRooms = async (
+  req: AuthenticatedRequest,
+  res: Response
+): Promise<Response> => {
+  try {
+    const hotel = await HotelService.getHotelByOwner(req.user?._id);
 
-    return ResponseHelper.paginated(
-      res,
-      result.rooms,
-      result.pagination,
-      "Rooms retrieved successfully"
-    );
+    if (!hotel) {
+      return ResponseHelper.forbidden(
+        res,
+        "You must own a hotel to access your rooms"
+      );
+    }
+
+    const rooms = await RoomService.getRoomsByHotel(hotel._id);
+    return ResponseHelper.success(res, rooms, "Rooms retrieved successfully");
   } catch (error) {
     logger.error("Get rooms error:", error);
     return ResponseHelper.error(res, "Failed to retrieve rooms");
@@ -195,109 +181,101 @@ export const getAvailableRoomsByHotel = async (
 /**
  * Update room
  */
-export const updateRoom = async (
-  req: AuthenticatedRequest,
-  res: Response
-): Promise<Response> => {
-  try {
-    // Check validation errors
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return ResponseHelper.validationError(res, errors.array());
-    }
+// export const updateRoom = async (
+//   req: AuthenticatedRequest,
+//   res: Response
+// ): Promise<Response> => {
+//   try {
+//     // Check validation errors
+//     const errors = validationResult(req);
+//     if (!errors.isEmpty()) {
+//       return ResponseHelper.validationError(res, errors.array());
+//     }
 
-    if (!req.user) {
-      return ResponseHelper.unauthorized(res, "User not authenticated");
-    }
+//     const { id } = req.params;
+//     const updateData = req.body;
 
-    const { id } = req.params;
-    const updateData = req.body;
+//     // Verify user owns the hotel that owns this room
+//     const room = await RoomService.getRoomById(id);
+//     if (!room) {
+//       return ResponseHelper.notFound(res, "Room not found");
+//     }
 
-    // Verify user owns the hotel that owns this room
-    const room = await RoomService.getRoomById(id);
-    if (!room) {
-      return ResponseHelper.notFound(res, "Room not found");
-    }
+//     const hotel = await HotelService.getHotelByOwner(req.user._id);
+//     if (!hotel || hotel._id.toString() !== room.hotel._id.toString()) {
+//       return ResponseHelper.forbidden(
+//         res,
+//         "You can only update rooms in your own hotel"
+//       );
+//     }
 
-    const hotel = await HotelService.getHotelByOwner(req.user._id);
-    if (!hotel || hotel._id.toString() !== room.hotel._id.toString()) {
-      return ResponseHelper.forbidden(
-        res,
-        "You can only update rooms in your own hotel"
-      );
-    }
+//     const updatedRoom = await RoomService.updateRoom(id, updateData);
 
-    const updatedRoom = await RoomService.updateRoom(id, updateData);
+//     if (!updatedRoom) {
+//       return ResponseHelper.notFound(res, "Room not found");
+//     }
 
-    if (!updatedRoom) {
-      return ResponseHelper.notFound(res, "Room not found");
-    }
+//     return ResponseHelper.success(
+//       res,
+//       updatedRoom,
+//       "Room updated successfully"
+//     );
+//   } catch (error: any) {
+//     logger.error("Update room error:", error);
 
-    return ResponseHelper.success(
-      res,
-      updatedRoom,
-      "Room updated successfully"
-    );
-  } catch (error: any) {
-    logger.error("Update room error:", error);
+//     if (error.message === "Invalid room ID") {
+//       return ResponseHelper.validationError(res, [{ msg: error.message }]);
+//     }
 
-    if (error.message === "Invalid room ID") {
-      return ResponseHelper.validationError(res, [{ msg: error.message }]);
-    }
-
-    return ResponseHelper.error(res, "Failed to update room");
-  }
-};
+//     return ResponseHelper.error(res, "Failed to update room");
+//   }
+// };
 
 /**
  * Delete room
  */
-export const deleteRoom = async (
-  req: AuthenticatedRequest,
-  res: Response
-): Promise<Response> => {
-  try {
-    if (!req.user) {
-      return ResponseHelper.unauthorized(res, "User not authenticated");
-    }
+// export const deleteRoom = async (
+//   req: AuthenticatedRequest,
+//   res: Response
+// ): Promise<Response> => {
+//   try {
+//     const { id } = req.params;
 
-    const { id } = req.params;
+//     // Verify user owns the hotel that owns this room
+//     const room = await RoomService.getRoomById(id);
+//     if (!room) {
+//       return ResponseHelper.notFound(res, "Room not found");
+//     }
 
-    // Verify user owns the hotel that owns this room
-    const room = await RoomService.getRoomById(id);
-    if (!room) {
-      return ResponseHelper.notFound(res, "Room not found");
-    }
+//     const hotel = await HotelService.getHotelByOwner(req.user._id);
+//     if (!hotel || hotel._id.toString() !== room.hotel._id.toString()) {
+//       return ResponseHelper.forbidden(
+//         res,
+//         "You can only delete rooms in your own hotel"
+//       );
+//     }
 
-    const hotel = await HotelService.getHotelByOwner(req.user._id);
-    if (!hotel || hotel._id.toString() !== room.hotel._id.toString()) {
-      return ResponseHelper.forbidden(
-        res,
-        "You can only delete rooms in your own hotel"
-      );
-    }
+//     const deleted = await RoomService.deleteRoom(id);
 
-    const deleted = await RoomService.deleteRoom(id);
+//     if (!deleted) {
+//       return ResponseHelper.notFound(res, "Room not found");
+//     }
 
-    if (!deleted) {
-      return ResponseHelper.notFound(res, "Room not found");
-    }
+//     return ResponseHelper.success(res, null, "Room deleted successfully");
+//   } catch (error: any) {
+//     logger.error("Delete room error:", error);
 
-    return ResponseHelper.success(res, null, "Room deleted successfully");
-  } catch (error: any) {
-    logger.error("Delete room error:", error);
+//     if (error.message === "Invalid room ID") {
+//       return ResponseHelper.validationError(res, [{ msg: error.message }]);
+//     }
 
-    if (error.message === "Invalid room ID") {
-      return ResponseHelper.validationError(res, [{ msg: error.message }]);
-    }
+//     if (error.message === "Cannot delete room with active bookings") {
+//       return ResponseHelper.conflict(res, error.message);
+//     }
 
-    if (error.message === "Cannot delete room with active bookings") {
-      return ResponseHelper.conflict(res, error.message);
-    }
-
-    return ResponseHelper.error(res, "Failed to delete room");
-  }
-};
+//     return ResponseHelper.error(res, "Failed to delete room");
+//   }
+// };
 
 /**
  * Toggle room availability
@@ -307,27 +285,9 @@ export const toggleRoomAvailability = async (
   res: Response
 ): Promise<Response> => {
   try {
-    if (!req.user) {
-      return ResponseHelper.unauthorized(res, "User not authenticated");
-    }
+    const { roomId } = req.body;
 
-    const { id } = req.params;
-
-    // Verify user owns the hotel that owns this room
-    const room = await RoomService.getRoomById(id);
-    if (!room) {
-      return ResponseHelper.notFound(res, "Room not found");
-    }
-
-    const hotel = await HotelService.getHotelByOwner(req.user._id);
-    if (!hotel || hotel._id.toString() !== room.hotel._id.toString()) {
-      return ResponseHelper.forbidden(
-        res,
-        "You can only modify rooms in your own hotel"
-      );
-    }
-
-    const updatedRoom = await RoomService.toggleRoomAvailability(id);
+    const updatedRoom = await RoomService.toggleRoomAvailability(roomId);
 
     if (!updatedRoom) {
       return ResponseHelper.notFound(res, "Room not found");
@@ -456,38 +416,34 @@ export const searchAvailableRooms = async (
 /**
  * Get room statistics for hotel owner
  */
-export const getRoomStatistics = async (
-  req: AuthenticatedRequest,
-  res: Response
-): Promise<Response> => {
-  try {
-    if (!req.user) {
-      return ResponseHelper.unauthorized(res, "User not authenticated");
-    }
+// export const getRoomStatistics = async (
+//   req: AuthenticatedRequest,
+//   res: Response
+// ): Promise<Response> => {
+//   try {
+//     // Verify user owns a hotel
+//     const hotel = await HotelService.getHotelByOwner(req.user._id);
+//     if (!hotel) {
+//       return ResponseHelper.forbidden(
+//         res,
+//         "You must own a hotel to view statistics"
+//       );
+//     }
 
-    // Verify user owns a hotel
-    const hotel = await HotelService.getHotelByOwner(req.user._id);
-    if (!hotel) {
-      return ResponseHelper.forbidden(
-        res,
-        "You must own a hotel to view statistics"
-      );
-    }
+//     const stats = await RoomService.getRoomStatistics(hotel._id.toString());
 
-    const stats = await RoomService.getRoomStatistics(hotel._id.toString());
+//     return ResponseHelper.success(
+//       res,
+//       stats,
+//       "Room statistics retrieved successfully"
+//     );
+//   } catch (error: any) {
+//     logger.error("Get room statistics error:", error);
 
-    return ResponseHelper.success(
-      res,
-      stats,
-      "Room statistics retrieved successfully"
-    );
-  } catch (error: any) {
-    logger.error("Get room statistics error:", error);
+//     if (error.message === "Invalid hotel ID") {
+//       return ResponseHelper.validationError(res, [{ msg: error.message }]);
+//     }
 
-    if (error.message === "Invalid hotel ID") {
-      return ResponseHelper.validationError(res, [{ msg: error.message }]);
-    }
-
-    return ResponseHelper.error(res, "Failed to retrieve room statistics");
-  }
-};
+//     return ResponseHelper.error(res, "Failed to retrieve room statistics");
+//   }
+// };

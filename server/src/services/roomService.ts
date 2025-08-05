@@ -10,8 +10,6 @@ export interface CreateRoomData {
   pricePerNight: number;
   amenities: string[];
   images: string[];
-  maxGuests: number;
-  description?: string;
 }
 
 export interface RoomQuery {
@@ -58,75 +56,17 @@ export class RoomService {
   /**
    * Get rooms with filtering and pagination
    */
-  static async getRooms(query: RoomQuery) {
+  static async getRooms() {
     try {
-      const {
-        hotel,
-        roomType,
-        minPrice,
-        maxPrice,
-        maxGuests,
-        isAvailable,
-        page = 1,
-        limit = 10,
-        sortBy = "createdAt",
-        sortOrder = "desc",
-      } = query;
-
-      // Build filter query
-      const filter: any = {};
-
-      if (hotel && mongoose.Types.ObjectId.isValid(hotel)) {
-        filter.hotel = hotel;
-      }
-
-      if (roomType) {
-        filter.roomType = roomType;
-      }
-
-      if (minPrice !== undefined || maxPrice !== undefined) {
-        filter.pricePerNight = {};
-        if (minPrice !== undefined) filter.pricePerNight.$gte = minPrice;
-        if (maxPrice !== undefined) filter.pricePerNight.$lte = maxPrice;
-      }
-
-      if (maxGuests !== undefined) {
-        filter.maxGuests = { $gte: maxGuests };
-      }
-
-      if (isAvailable !== undefined) {
-        filter.isAvailable = isAvailable;
-      }
-
-      // Calculate pagination
-      const skip = (page - 1) * limit;
-      const sortOptions: any = {};
-      sortOptions[sortBy] = sortOrder === "asc" ? 1 : -1;
-
-      // Execute queries in parallel
-      const [rooms, total] = await Promise.all([
-        Room.find(filter)
-          .populate("hotel", "name address city")
-          .sort(sortOptions)
-          .skip(skip)
-          .limit(limit)
-          .lean(),
-        Room.countDocuments(filter),
-      ]);
-
-      const totalPages = Math.ceil(total / limit);
-
-      return {
-        rooms,
-        pagination: {
-          page,
-          limit,
-          total,
-          totalPages,
-          hasNext: page < totalPages,
-          hasPrev: page > 1,
+      const rooms = await Room.find({ isAvailable: true }).populate({
+        path: "hotel",
+        populate: {
+          path: "owner",
+          select: "image",
         },
-      };
+      });
+
+      return rooms;
     } catch (error) {
       logger.error("Error getting rooms:", error);
       throw error;

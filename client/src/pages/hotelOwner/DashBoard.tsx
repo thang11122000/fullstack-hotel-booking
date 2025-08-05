@@ -1,9 +1,40 @@
-import React, { useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import Title from "../../components/Title";
 import { assets, dashboardDummyData } from "../../assets/assets";
+import { useAppContext } from "../../context/AppContext";
+import toast from "react-hot-toast";
 
 const DashBoard = () => {
-  const [dashboardData, setDashboardData] = useState(dashboardDummyData);
+  const { currency, user, getToken, axios } = useAppContext();
+
+  const [dashboardData, setDashboardData] = useState({
+    bookings: [],
+    totalBookings: 0,
+    totalRevenue: 0,
+  });
+
+  const fetDashboardData = useCallback(async () => {
+    try {
+      const { data } = await axios.get("/api/bookings/hotel", {
+        headers: {
+          Authorization: `Bearer ${await getToken()}`,
+        },
+      });
+
+      if (data.success) {
+        setDashboardData(data.data);
+      } else {
+        toast.error(data.message);
+      }
+    } catch (err) {
+      toast.error(err.message);
+    }
+  }, [axios, getToken]);
+
+  useEffect(() => {
+    if (user) fetDashboardData();
+  }, [fetDashboardData, user]);
+
   return (
     <div>
       <Title align="left" font="outfit" title="Dashboard" subTitle={""}></Title>
@@ -31,7 +62,7 @@ const DashBoard = () => {
           <div className="flex flex-col sm:ml-4 font-medium">
             <p className="text-blue-500 text-lg">Total Revenue</p>
             <p className="text-neutral-400 text-base">
-              $ {dashboardData.totalRevenue}
+              {currency} {dashboardData.totalRevenue}
             </p>
           </div>
         </div>
@@ -66,7 +97,7 @@ const DashBoard = () => {
                   {item.room?.roomType || "N/A"}
                 </td>
                 <td className="py-3 px-4 text-gray-700 border-t border-gray-300 text-center">
-                  $ {item.totalPrice}
+                  {currency} {item.totalPrice}
                 </td>
                 <td className="py-3 px-4 text-gray-700 border-t border-gray-300 flex">
                   <button

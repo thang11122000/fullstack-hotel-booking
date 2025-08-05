@@ -7,12 +7,9 @@ import { logger } from "../utils/logger";
 export interface CreateBookingData {
   user: mongoose.Types.ObjectId;
   room: mongoose.Types.ObjectId;
-  hotel: mongoose.Types.ObjectId;
   checkInDate: Date;
   checkOutDate: Date;
   guests: number;
-  paymentMethod: string;
-  specialRequests?: string;
 }
 
 export interface UpdateBookingData extends Partial<CreateBookingData> {
@@ -41,21 +38,6 @@ export class BookingService {
    */
   static async createBooking(data: CreateBookingData): Promise<IBooking> {
     try {
-      // Validate room exists and is available
-      const room = await Room.findById(data.room);
-      if (!room) {
-        throw new Error("Room not found");
-      }
-
-      if (!room.isAvailable) {
-        throw new Error("Room is not available");
-      }
-
-      // Check if room can accommodate the number of guests
-      if (data.guests > room.maxGuests) {
-        throw new Error(`Room can only accommodate ${room.maxGuests} guests`);
-      }
-
       // Check room availability for the specified dates
       const isAvailable = await this.checkRoomAvailability(
         data.room,
@@ -66,6 +48,11 @@ export class BookingService {
       if (!isAvailable) {
         throw new Error("Room is not available for the selected dates");
       }
+      // Validate room exists and is available
+      const room = await Room.findById(data.room).populate("hotel");
+      if (!room) {
+        throw new Error("Room not found");
+      }
 
       // Calculate total price
       const nights = this.calculateNights(data.checkInDate, data.checkOutDate);
@@ -74,6 +61,7 @@ export class BookingService {
       // Create booking
       const booking = await Booking.create({
         ...data,
+        hotel: room.hotel?._id,
         totalPrice,
       });
 
@@ -284,10 +272,6 @@ export class BookingService {
 
       if (booking.status === "cancelled") {
         throw new Error("Booking is already cancelled");
-      }
-
-      if (booking.status === "completed") {
-        throw new Error("Cannot cancel completed booking");
       }
 
       await booking.cancel(reason);

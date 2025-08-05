@@ -19,35 +19,18 @@ export const createBooking = async (
   res: Response
 ): Promise<Response> => {
   try {
-    // Check validation errors
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return ResponseHelper.validationError(res, errors.array());
-    }
-
     if (!req.user) {
       return ResponseHelper.unauthorized(res, "User not authenticated");
     }
 
-    const {
-      room,
-      hotel,
-      checkInDate,
-      checkOutDate,
-      guests,
-      paymentMethod,
-      specialRequests,
-    } = req.body;
+    const { room, checkInDate, checkOutDate, guests } = req.body;
 
     const bookingData: CreateBookingData = {
       user: req.user._id,
       room,
-      hotel,
       checkInDate: new Date(checkInDate),
       checkOutDate: new Date(checkOutDate),
       guests,
-      paymentMethod: paymentMethod || "Pay At Hotel",
-      specialRequests,
     };
 
     const booking = await BookingService.createBooking(bookingData);
@@ -212,10 +195,19 @@ export const getHotelBookings = async (
     }
 
     const bookings = await BookingService.getBookingsByHotel(hotel._id);
+    const totalBookings = bookings.length;
+    const totalRevenue = bookings.reduce(
+      (total, booking) => (total += booking.totalPrice),
+      0
+    );
 
     return ResponseHelper.success(
       res,
-      bookings,
+      {
+        bookings,
+        totalBookings,
+        totalRevenue,
+      },
       "Hotel bookings retrieved successfully"
     );
   } catch (error) {
@@ -596,5 +588,23 @@ export const getUpcomingCheckOuts = async (
     }
 
     return ResponseHelper.error(res, "Failed to retrieve upcoming check-outs");
+  }
+};
+
+export const checkAvailability = async (
+  req: AuthenticatedRequest,
+  res: Response
+) => {
+  try {
+    const { room, checkInDate, checkOutDate } = req.body;
+    const isAvailable = await BookingService.checkRoomAvailability(
+      room,
+      checkInDate,
+      checkOutDate
+    );
+
+    return ResponseHelper.success(res, { isAvailable });
+  } catch (error) {
+    return ResponseHelper.error(res, "Failed to check availability");
   }
 };

@@ -13,4 +13,6 @@ export interface AppContextType {
   setShowHotelReg: (value: boolean) => void;
   searchedCities: string[];
   setSearchedCities: (cities: string[]) => void;
+  rooms: any[];
+  setRooms: (rooms: any) => void;
 }

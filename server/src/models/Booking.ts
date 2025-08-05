@@ -8,11 +8,9 @@ export interface IBooking extends Document {
   checkOutDate: Date;
   totalPrice: number;
   guests: number;
-  status: "pending" | "confirmed" | "cancelled" | "completed";
+  status: "pending" | "confirmed" | "cancelled";
   paymentMethod: string;
   isPaid: boolean;
-  specialRequests?: string;
-  cancellationReason?: string;
   createdAt: Date;
   updatedAt: Date;
   // Instance methods
@@ -57,41 +55,37 @@ const bookingSchema = new Schema<IBooking>(
     checkInDate: {
       type: Date,
       required: [true, "Check-in date is required"],
-      validate: {
-        validator: function (date: Date) {
-          return date >= new Date();
-        },
-        message: "Check-in date cannot be in the past",
-      },
+      // validate: {
+      //   validator: function (date: Date) {
+      //     return date >= new Date();
+      //   },
+      //   message: "Check-in date cannot be in the past",
+      // },
       index: true,
     },
     checkOutDate: {
       type: Date,
       required: [true, "Check-out date is required"],
-      validate: {
-        validator: function (this: IBooking, date: Date) {
-          return date > this.checkInDate;
-        },
-        message: "Check-out date must be after check-in date",
-      },
+      // validate: {
+      //   validator: function (this: IBooking, date: Date) {
+      //     return date > this.checkInDate;
+      //   },
+      //   message: "Check-out date must be after check-in date",
+      // },
       index: true,
     },
     totalPrice: {
       type: Number,
       required: [true, "Total price is required"],
-      min: [0, "Total price cannot be negative"],
-      max: [100000, "Total price cannot exceed 100,000"],
     },
     guests: {
       type: Number,
       required: [true, "Number of guests is required"],
-      min: [1, "At least 1 guest is required"],
-      max: [10, "Cannot exceed 10 guests"],
     },
     status: {
       type: String,
       enum: {
-        values: ["pending", "confirmed", "cancelled", "completed"],
+        values: ["pending", "confirmed", "cancelled"],
         message:
           "Status must be one of: pending, confirmed, cancelled, completed",
       },
@@ -101,26 +95,12 @@ const bookingSchema = new Schema<IBooking>(
     paymentMethod: {
       type: String,
       required: [true, "Payment method is required"],
-      enum: {
-        values: ["Pay At Hotel", "Credit Card", "PayPal", "Bank Transfer"],
-        message: "Invalid payment method",
-      },
       default: "Pay At Hotel",
     },
     isPaid: {
       type: Boolean,
       default: false,
       index: true,
-    },
-    specialRequests: {
-      type: String,
-      trim: true,
-      maxlength: [500, "Special requests cannot exceed 500 characters"],
-    },
-    cancellationReason: {
-      type: String,
-      trim: true,
-      maxlength: [200, "Cancellation reason cannot exceed 200 characters"],
     },
   },
   {
@@ -149,7 +129,7 @@ bookingSchema.index({ createdAt: -1 });
 
 // Pre-save middleware for validation
 bookingSchema.pre("save", function (next) {
-  if (this.status === "cancelled" && !this.cancellationReason) {
+  if (this.status === "cancelled") {
     return next(
       new Error("Cancellation reason is required when status is cancelled")
     );
@@ -179,7 +159,6 @@ bookingSchema.statics.checkRoomAvailability = function (
 ) {
   return this.findOne({
     room: roomId,
-    status: { $in: ["pending", "confirmed"] },
     $or: [
       { checkInDate: { $lt: checkOut, $gte: checkIn } },
       { checkOutDate: { $gt: checkIn, $lte: checkOut } },

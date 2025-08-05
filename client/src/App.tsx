@@ -2,7 +2,7 @@ import Navbar from "./components/Navbar";
 import { Route, Routes, useLocation } from "react-router-dom";
 import Home from "./pages/Home";
 import AllRooms from "./pages/AllRooms";
-import RoomDetail from "./pages/RoomDetail";
+import RoomDetail from "./pages/RoomDetails";
 import HotelReg from "./components/HotelReg";
 import Layout from "./pages/hotelOwner/Layout";
 import MyBooking from "./pages/MyBooking";

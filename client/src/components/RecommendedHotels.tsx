@@ -1,16 +1,30 @@
+import { useCallback, useEffect, useState } from "react";
 import { roomsDummyData } from "../assets/assets";
 import { useAppContext } from "../context/AppContext";
 import HotelCard from "./HotelCard";
 import Title from "./Title";
 import { useNavigate } from "react-router-dom";
 
-const FeaturedDestination = () => {
-  const { navigate, rooms } = useAppContext();
+const RecommendedHotels = () => {
+  const { navigate, searchedCities, rooms } = useAppContext();
+  const [recommended, setRecommended] = useState([]);
+
+  const filteredHotels = useCallback(() => {
+    const hotel = rooms
+      .slice()
+      .filter((room) => searchedCities.includes(room.hotel.city));
+    setRecommended(hotel);
+  }, [rooms, searchedCities]);
+
+  useEffect(() => {
+    filteredHotels();
+  }, [filteredHotels]);
+
   return (
-    rooms.length > 0 && (
+    recommended.length > 0 && (
       <div className="flex flex-col items-center px-6 md:px-16 lg:px-24 bg-slate-50 py-20">
         <Title
-          title={"Featured Destination"}
+          title={"Recommended Hotels"}
           subTitle={
             "Discover our handpicked selection of exceptional properties around the word, offering unparalleled luxury and unforgettable experiences."
           }
@@ -18,7 +32,7 @@ const FeaturedDestination = () => {
           font="font-playfair"
         />
         <div className="flex flex-wrap items-center justify-center gap-6 mt-20">
-          {rooms.slice(0, 4).map((room, index) => (
+          {recommended.slice(0, 4).map((room, index) => (
             <HotelCard key={index} room={room} index={index}></HotelCard>
           ))}
         </div>
@@ -36,4 +50,4 @@ const FeaturedDestination = () => {
   );
 };
 
-export default FeaturedDestination;
+export default RecommendedHotels;
