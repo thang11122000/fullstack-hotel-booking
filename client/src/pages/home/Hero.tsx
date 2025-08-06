@@ -102,7 +102,7 @@ const Hero: React.FC = () => {
       });
 
       // Navigate to search results
-      navigate(`/room?${searchParams.toString()}`);
+      navigate(`/rooms?${searchParams.toString()}`);
 
       // Store recent search and update local state
       await Promise.all([

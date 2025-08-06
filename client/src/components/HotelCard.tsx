@@ -33,7 +33,7 @@ const HotelCard = ({
 
   return (
     <Link
-      to={`/room/${room._id}`}
+      to={`/rooms/${room._id}`}
       onClick={handleScrollToTop}
       className={`relative max-w-70 w-full rounded-xl overflow-hidden bg-white text-gray-500/90 shadow-[0px_4px_4px_rgba(0,0,0,0.05)] hover:shadow-lg transition-shadow duration-300 ${className}`}
       aria-label={`View details for ${room.hotel.name}`}
@@ -81,14 +81,7 @@ const HotelCard = ({
             {formatPrice(room.pricePerNight)}
             <span className="text-sm font-normal text-gray-500">/night</span>
           </div>
-          <button
-            className="px-4 py-2 text-sm font-medium border border-gray-300 rounded hover:bg-gray-50 hover:border-gray-400 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-            onClick={(e) => {
-              e.preventDefault();
-              // Handle booking logic here
-              console.log("Book now clicked for room:", room._id);
-            }}
-          >
+          <button className="px-4 py-2 text-sm font-medium border border-gray-300 rounded hover:bg-gray-50 hover:border-gray-400 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
             Book Now
           </button>
         </div>

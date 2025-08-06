@@ -44,10 +44,9 @@ export class HotelService {
     ownerId: mongoose.Types.ObjectId
   ): Promise<IHotel | null> {
     try {
-      const hotel = await Hotel.findOne({ owner: ownerId }).populate(
-        "owner",
-        "username email"
-      );
+      const hotel = await Hotel.findOne({ owner: ownerId }).populate([
+        { path: "owner", select: "username email" },
+      ]);
       return hotel;
     } catch (error) {
       logger.error("Error getting hotel by owner:", error);
