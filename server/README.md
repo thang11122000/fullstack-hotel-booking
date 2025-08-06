@@ -1,53 +1,54 @@
-# 🚀 Chat Application - Backend
+# 🏨 Hotel Booking Server
 
-High-performance Node.js server for real-time chat application with capability to handle thousands of concurrent users.
+High-performance Node.js backend for the hotel booking application with comprehensive REST API, authentication, and database management.
 
 ## 🏗️ Architecture
 
 ### Technology Stack
 
 - **Runtime**: Node.js 16+ with TypeScript
-- **Framework**: Express.js with Socket.IO
+- **Framework**: Express.js with comprehensive middleware
 - **Database**: MongoDB with Mongoose ODM
-- **Cache**: Redis with connection pooling
-- **Authentication**: JWT with bcrypt
-- **File Upload**: Cloudinary integration
+- **Authentication**: Clerk integration with JWT
+- **File Upload**: Cloudinary for image management
+- **Security**: Helmet, CORS, Rate limiting, Input validation
 - **Logging**: Winston with structured logging
-- **Validation**: express-validator with Joi
+- **Validation**: Express-validator with Joi schemas
 
 ### Key Features
 
-#### 🔌 Real-time Communication
+#### 🔐 Authentication & Authorization
 
-- Socket.IO with WebSocket and polling fallback
-- Redis adapter for horizontal scaling
-- Connection pooling and rate limiting
-- Debounced typing indicators
-- Optimized event handling
+- Clerk integration for secure user management
+- JWT token-based authentication
+- Role-based access control (Guest/Owner)
+- Webhook handling for user synchronization
+- Session management and token refresh
 
-#### 🗄️ Database Optimization
+#### 🗄️ Database Management
 
-- MongoDB connection pooling (50 connections)
-- Compound indexes for performance
-- Bulk operations and lean queries
-- Query monitoring and slow query detection
-- Automatic retry with exponential backoff
+- MongoDB with Mongoose ODM
+- Optimized schemas with proper indexing
+- Connection pooling for performance
+- Data validation and sanitization
+- Automatic timestamps and soft deletes
 
-#### ⚡ Performance Features
+#### ⚡ Performance & Security
 
-- Node.js clustering with load balancing
-- Redis caching with TTL
-- Message queue with batch processing
-- Compression middleware
-- Rate limiting and security headers
+- Rate limiting with configurable thresholds
+- Request compression with Brotli support
+- Security headers with Helmet
+- CORS configuration for cross-origin requests
+- Input validation and sanitization
+- Error handling with structured logging
 
-#### 📊 Monitoring & Analytics
+#### 📊 Monitoring & Health Checks
 
-- Real-time performance metrics
 - Health check endpoints
-- CPU, Memory, Database monitoring
-- Alert system with configurable thresholds
-- Historical data storage
+- Performance metrics collection
+- Memory and CPU usage monitoring
+- Request logging with unique IDs
+- Error tracking and alerting
 
 ## 🛠️ Installation
 
@@ -56,16 +57,14 @@ High-performance Node.js server for real-time chat application with capability t
 ```bash
 Node.js >= 16.0.0
 MongoDB >= 5.0
-Redis >= 6.0
 npm >= 8.0.0
 ```
 
 ### Setup
 
 ```bash
-# Clone and navigate
-git clone <repository-url>
-cd chat-app/server
+# Navigate to server directory
+cd server
 
 # Install dependencies
 npm install
@@ -76,7 +75,7 @@ cp .env.example .env
 
 ### Environment Configuration
 
-Create `.env` file:
+Create `.env` file with the following variables:
 
 ```env
 # Server Configuration
@@ -85,24 +84,28 @@ PORT=5000
 CLIENT_URL=http://localhost:5173
 
 # Database
-MONGODB_URI=mongodb://localhost:27017/chatapp
+MONGODB_URI=mongodb://localhost:27017/hotel-booking
 
-# Redis
-REDIS_URL=redis://localhost:6379
+# Clerk Authentication
+CLERK_PUBLISHABLE_KEY=your_clerk_publishable_key
+CLERK_SECRET_KEY=your_clerk_secret_key
+CLERK_WEBHOOK_SECRET=your_webhook_secret
 
-# JWT
-JWT_SECRET=your_super_secret_jwt_key_here
-
-# Cloudinary (Optional)
+# Cloudinary (for image uploads)
 CLOUDINARY_CLOUD_NAME=your_cloud_name
 CLOUDINARY_API_KEY=your_api_key
 CLOUDINARY_API_SECRET=your_api_secret
 
+# Security Settings
+JWT_SECRET=your_super_secret_jwt_key_here
+RATE_LIMIT_WINDOW_MS=300000
+RATE_LIMIT_MAX_REQUESTS=1000
+AUTH_RATE_LIMIT_MAX=100
+
 # Performance Settings
 MAX_CONNECTIONS=50
-REDIS_POOL_SIZE=10
-BATCH_SIZE=50
-PROCESSING_INTERVAL=100
+REQUEST_TIMEOUT=30000
+COMPRESSION_LEVEL=9
 ```
 
 ## 🚀 Running the Server
@@ -112,6 +115,8 @@ PROCESSING_INTERVAL=100
 ```bash
 npm run dev
 ```
+
+Starts the server with hot reload using nodemon.
 
 ### Production Mode
 
@@ -132,6 +137,9 @@ npm run lint:fix
 
 # Testing
 npm test
+
+# Type checking
+npx tsc --noEmit
 ```
 
 ## 📁 Project Structure
@@ -140,28 +148,44 @@ npm test
 server/
 ├── src/
 │   ├── controllers/          # Route controllers
-│   │   ├── user.controller.ts
-│   │   └── message.controller.ts
+│   │   ├── userController.ts
+│   │   ├── hotelController.ts
+│   │   ├── roomController.ts
+│   │   ├── bookingController.ts
+│   │   └── clerkWebhook.ts
 │   ├── middleware/           # Express middleware
 │   │   ├── auth.ts
-│   │   └── validation.ts
+│   │   ├── validation.ts
+│   │   └── errorHandler.ts
 │   ├── models/              # MongoDB models
 │   │   ├── User.ts
-│   │   ├── Message.ts
-│   │   └── Chat.ts
+│   │   ├── Hotel.ts
+│   │   ├── Room.ts
+│   │   └── Booking.ts
 │   ├── routes/              # API routes
-│   │   ├── auth.ts
-│   │   ├── message.ts
-│   │   └── chat.ts
+│   │   ├── userRouter.ts
+│   │   ├── hotelRouter.ts
+│   │   ├── roomRouter.ts
+│   │   └── bookingRouter.ts
 │   ├── services/            # Business logic
-│   │   └── socketService.ts
-│   ├── socket/              # Socket.IO handlers
-│   │   └── socketHandlers.ts
+│   │   ├── userService.ts
+│   │   ├── hotelService.ts
+│   │   ├── roomService.ts
+│   │   └── bookingService.ts
+│   ├── validators/          # Input validation
+│   │   ├── userValidator.ts
+│   │   ├── hotelValidator.ts
+│   │   ├── roomValidator.ts
+│   │   └── bookingValidator.ts
 │   ├── utils/               # Utility functions
-│   │   └── logger.ts
+│   │   ├── logger.ts
+│   │   ├── helpers.ts
+│   │   └── constants.ts
 │   ├── lib/                 # External integrations
-│   │   ├── redis.ts
+│   │   ├── mongo.ts
 │   │   └── cloudinary.ts
+│   ├── types/               # TypeScript definitions
+│   │   └── index.ts
 │   ├── app.ts               # Express app setup
 │   └── index.ts             # Server entry point
 ├── dist/                    # Compiled JavaScript
@@ -169,232 +193,228 @@ server/
 ├── scripts/                 # Utility scripts
 ├── package.json
 ├── tsconfig.json
+├── nodemon.json
 └── README.md
 ```
 
 ## 🔧 API Documentation
 
-### Authentication Endpoints
+### Base URL
 
 ```
-POST /api/auth/signup       # User registration
-POST /api/auth/login        # User login
-POST /api/auth/logout       # User logout
-GET  /api/auth/check        # Check authentication status
-PUT  /api/auth/profile      # Update user profile
+Development: http://localhost:5000/api
+Production: https://your-domain.com/api
 ```
 
-### Message Endpoints
+### Authentication
+
+All protected routes require a valid JWT token in the Authorization header:
 
 ```
-GET  /api/messages/users                # Get users for sidebar
-GET  /api/messages/conversation/:id     # Get conversation messages
-POST /api/messages/send/:id             # Send message
-PUT  /api/messages/mark-seen/:id        # Mark message as read
-DELETE /api/messages/:id                # Delete message
-GET  /api/messages/unread-count         # Get unread messages count
+Authorization: Bearer <your-jwt-token>
 ```
 
-### Chat Endpoints
+### User Endpoints
 
+```http
+GET    /api/user/profile          # Get user profile
+PUT    /api/user/profile          # Update user profile
+DELETE /api/user/profile          # Delete user account
 ```
-GET  /api/chat                          # Get user's chat list
-GET  /api/chat/:chatId/messages         # Get messages in chat
-POST /api/chat/create                   # Create new chat
-GET  /api/chat/users/search             # Search users
-PUT  /api/chat/:chatId/read             # Mark messages as read
-GET  /api/chat/unread-count             # Get unread count
+
+### Hotel Endpoints
+
+```http
+GET    /api/hotels                # Get all hotels (with filters)
+GET    /api/hotels/:id            # Get hotel by ID
+POST   /api/hotels               # Create new hotel (Owner only)
+PUT    /api/hotels/:id            # Update hotel (Owner only)
+DELETE /api/hotels/:id            # Delete hotel (Owner only)
+GET    /api/hotels/owner/my       # Get owner's hotels
+```
+
+### Room Endpoints
+
+```http
+GET    /api/rooms                 # Get all rooms (with filters)
+GET    /api/rooms/:id             # Get room by ID
+POST   /api/rooms                # Create new room (Owner only)
+PUT    /api/rooms/:id             # Update room (Owner only)
+DELETE /api/rooms/:id             # Delete room (Owner only)
+GET    /api/rooms/hotel/:hotelId  # Get rooms by hotel
+POST   /api/rooms/:id/images      # Upload room images
+```
+
+### Booking Endpoints
+
+```http
+GET    /api/bookings              # Get user's bookings
+GET    /api/bookings/:id          # Get booking by ID
+POST   /api/bookings             # Create new booking
+PUT    /api/bookings/:id          # Update booking
+DELETE /api/bookings/:id          # Cancel booking
+GET    /api/bookings/owner/all    # Get owner's bookings
+```
+
+### Webhook Endpoints
+
+```http
+POST   /api/clerk/webhook         # Clerk user synchronization
 ```
 
 ### Health & Monitoring
 
-```
-GET  /api/health                        # System health check
-GET  /api/metrics                       # Performance metrics
-GET  /api/queue/stats                   # Message queue statistics
-```
-
-## 🔌 Socket.IO Events
-
-### Client → Server Events
-
-```javascript
-// Connection management
-"join_chat"; // Join a chat room
-"leave_chat"; // Leave a chat room
-
-// Messaging
-"send_message"; // Send a new message
-"mark_as_read"; // Mark messages as read
-
-// Typing indicators
-"typing_start"; // Start typing indicator
-"typing_stop"; // Stop typing indicator
-```
-
-### Server → Client Events
-
-```javascript
-// Message events
-"message_sent"; // Message successfully sent
-"message_received"; // New message received
-"messages_read"; // Messages marked as read
-"message_queued"; // Message queued for processing
-
-// Chat updates
-"chat_updated"; // Chat room updated
-"user_typing"; // User typing indicator
-
-// User status
-"getOnlineUsers"; // Online users list
-"user_connected"; // User came online
-"user_disconnected"; // User went offline
+```http
+GET    /api/health                # System health check
+GET    /api/metrics               # Performance metrics
 ```
 
 ## 🗄️ Database Schema
 
 ### User Model
 
-```javascript
-{
-  _id: ObjectId,
-  fullname: String (required),
-  email: String (unique, required),
-  password: String (hashed, required),
-  profilePic: String (optional),
-  bio: String (optional),
-  isOnline: Boolean (default: false),
-  lastSeen: Date (default: Date.now),
-  createdAt: Date,
-  updatedAt: Date
+```typescript
+interface IUser {
+  _id: ObjectId;
+  clerkId: string; // Clerk user ID
+  email: string; // User email (unique)
+  firstName: string; // User first name
+  lastName: string; // User last name
+  profileImage?: string; // Profile image URL
+  role: "guest" | "owner"; // User role
+  createdAt: Date;
+  updatedAt: Date;
 }
 ```
 
-### Message Model
+### Hotel Model
 
-```javascript
-{
-  _id: ObjectId,
-  senderId: ObjectId (ref: User, required),
-  receiverId: ObjectId (ref: User, required),
-  text: String (optional, max: 5000),
-  image: String (optional),
-  seen: Boolean (default: false),
-  createdAt: Date,
-  updatedAt: Date
+```typescript
+interface IHotel {
+  _id: ObjectId;
+  name: string; // Hotel name
+  address: string; // Hotel address
+  contact: string; // Contact phone number
+  owner: ObjectId; // Reference to User
+  city: string; // Hotel city
+  createdAt: Date;
+  updatedAt: Date;
 }
 ```
 
-### Chat Model
+### Room Model
 
-```javascript
-{
-  _id: ObjectId,
-  participants: [ObjectId] (ref: User, required),
-  lastMessage: ObjectId (ref: Message),
-  lastMessageTime: Date (default: Date.now),
-  unreadCount: Map<String, Number>,
-  createdAt: Date,
-  updatedAt: Date
+```typescript
+interface IRoom {
+  _id: ObjectId;
+  hotel: ObjectId; // Reference to Hotel
+  roomNumber: string; // Room identifier
+  type: string; // Room type (single, double, suite)
+  price: number; // Price per night
+  capacity: number; // Maximum occupancy
+  amenities: string[]; // Room amenities
+  images: string[]; // Room image URLs
+  isAvailable: boolean; // Availability status
+  description?: string; // Room description
+  createdAt: Date;
+  updatedAt: Date;
+}
+```
+
+### Booking Model
+
+```typescript
+interface IBooking {
+  _id: ObjectId;
+  user: ObjectId; // Reference to User
+  room: ObjectId; // Reference to Room
+  hotel: ObjectId; // Reference to Hotel
+  checkIn: Date; // Check-in date
+  checkOut: Date; // Check-out date
+  guests: number; // Number of guests
+  totalAmount: number; // Total booking amount
+  status: "pending" | "confirmed" | "cancelled" | "completed";
+  paymentStatus: "pending" | "paid" | "refunded";
+  specialRequests?: string; // Guest special requests
+  createdAt: Date;
+  updatedAt: Date;
 }
 ```
 
 ### Database Indexes
 
 ```javascript
-// Message indexes for performance
-messageSchema.index({ senderId: 1, receiverId: 1, createdAt: -1 });
-messageSchema.index({ receiverId: 1, seen: 1, createdAt: -1 });
-messageSchema.index({ senderId: 1, createdAt: -1 });
-messageSchema.index({ receiverId: 1, createdAt: -1 });
-messageSchema.index({ createdAt: -1 });
-
-// Partial indexes for unread messages
-messageSchema.index(
-  { seen: 1, createdAt: -1 },
-  { partialFilterExpression: { seen: false } }
-);
-
-// Text search index
-messageSchema.index({ text: "text" }, { weights: { text: 10 } });
-
-// Chat indexes
-chatSchema.index({ participants: 1 });
-chatSchema.index({ lastMessageTime: -1 });
-
 // User indexes
-userSchema.index({ email: 1 });
-userSchema.index({ isOnline: 1, lastSeen: -1 });
+userSchema.index({ clerkId: 1 }, { unique: true });
+userSchema.index({ email: 1 }, { unique: true });
+userSchema.index({ role: 1 });
+
+// Hotel indexes
+hotelSchema.index({ owner: 1 }, { unique: true });
+hotelSchema.index({ city: 1, createdAt: -1 });
+hotelSchema.index({ name: "text", address: "text", city: "text" });
+
+// Room indexes
+roomSchema.index({ hotel: 1 });
+roomSchema.index({ hotel: 1, isAvailable: 1 });
+roomSchema.index({ type: 1, price: 1 });
+roomSchema.index({ price: 1 });
+
+// Booking indexes
+bookingSchema.index({ user: 1, createdAt: -1 });
+bookingSchema.index({ room: 1, checkIn: 1, checkOut: 1 });
+bookingSchema.index({ hotel: 1, status: 1 });
+bookingSchema.index({ status: 1, paymentStatus: 1 });
 ```
 
 ## ⚡ Performance Configuration
 
-### Connection Pooling
+### MongoDB Connection
 
 ```javascript
-// MongoDB
 mongoose.connect(MONGODB_URI, {
-  maxPoolSize: 50,
-  minPoolSize: 5,
-  maxIdleTimeMS: 30000,
+  maxPoolSize: 50, // Maximum connections
+  minPoolSize: 5, // Minimum connections
+  maxIdleTimeMS: 30000, // Close connections after 30s idle
   serverSelectionTimeoutMS: 5000,
-});
-
-// Redis
-const redis = new Redis({
-  host: REDIS_HOST,
-  port: REDIS_PORT,
-  maxRetriesPerRequest: 3,
-  retryDelayOnFailover: 100,
-  lazyConnect: true,
+  socketTimeoutMS: 45000,
 });
 ```
 
-### Socket.IO Optimization
+### Rate Limiting
 
 ```javascript
-const io = new Server(server, {
-  transports: ["websocket", "polling"],
-  pingTimeout: 60000,
-  pingInterval: 25000,
-  maxHttpBufferSize: 1e6,
-  cors: {
-    origin: CLIENT_URL,
-    credentials: true,
-  },
+// General rate limiting
+const limiter = rateLimit({
+  windowMs: 5 * 60 * 1000, // 5 minutes
+  max: 1000, // Limit each IP to 1000 requests per windowMs
+  message: "Too many requests from this IP",
+  standardHeaders: true,
+  legacyHeaders: false,
 });
 
-// Redis adapter for scaling
-io.adapter(createAdapter(pubClient, subClient));
+// Authentication rate limiting
+const authLimiter = rateLimit({
+  windowMs: 5 * 60 * 1000, // 5 minutes
+  max: 100, // Limit auth attempts
+  skipSuccessfulRequests: true,
+});
 ```
 
-### Message Queue & Batch Processing
+### Compression
 
 ```javascript
-// Batch processing configuration
-const BATCH_SIZE = 50;
-const BATCH_TIMEOUT = 100; // ms
-
-// Queue message for batch processing
-async function queueMessage(data) {
-  const chatId = `${data.senderId}_${data.receiverId}`;
-
-  if (!messageQueue.has(chatId)) {
-    messageQueue.set(chatId, []);
-  }
-
-  messageQueue.get(chatId).push(data);
-
-  // Process batch if size threshold reached
-  if (messageQueue.get(chatId).length >= BATCH_SIZE) {
-    return await processMessageBatch(chatId);
-  }
-
-  // Set timeout for processing remaining messages
-  setTimeout(() => {
-    processMessageBatch(chatId);
-  }, BATCH_TIMEOUT);
-}
+app.use(
+  compression({
+    level: 9, // Maximum compression
+    threshold: 1024, // Only compress files > 1KB
+    brotli: {
+      params: {
+        [zlib.constants.BROTLI_PARAM_QUALITY]: 11,
+      },
+    },
+  })
+);
 ```
 
 ## 📊 Monitoring
@@ -403,184 +423,124 @@ async function queueMessage(data) {
 
 ```json
 {
-  "status": "healthy",
-  "timestamp": "2024-01-01T00:00:00.000Z",
+  "status": true,
+  "timestamp": "2024-01-15T10:30:00.000Z",
+  "environment": "development",
+  "worker": 12345,
   "uptime": 3600,
-  "services": {
-    "database": "connected",
-    "redis": "connected",
-    "memory": {
-      "used": "256MB",
-      "free": "768MB",
-      "usage": "25%"
-    },
-    "cpu": {
-      "usage": "15%",
-      "load": [0.5, 0.3, 0.2]
-    }
+  "responseTime": "5ms",
+  "memory": {
+    "rss": "45MB",
+    "heapUsed": "32MB",
+    "heapTotal": "40MB",
+    "external": "8MB"
+  },
+  "system": {
+    "cpu": { "user": 1000000, "system": 500000 },
+    "load": [0.5, 0.3, 0.2]
   }
 }
 ```
 
-### Performance Metrics
+### Metrics Endpoint
 
 ```json
 {
+  "timestamp": "2024-01-15T10:30:00.000Z",
+  "worker": 12345,
+  "uptime": 3600,
+  "memory": {
+    "rss": 47185920,
+    "heapUsed": 33554432,
+    "heapTotal": 41943040,
+    "external": 8388608
+  },
+  "cpu": { "user": 1000000, "system": 500000 },
+  "system": {
+    "load": [0.5, 0.3, 0.2],
+    "freeMemory": 2147483648,
+    "totalMemory": 8589934592
+  },
   "connections": {
-    "active": 1250,
-    "total": 15000
-  },
-  "messages": {
-    "sent": 50000,
-    "queued": 25,
-    "failed": 2
-  },
-  "database": {
-    "queries": 1000,
-    "slow_queries": 5,
-    "avg_response_time": "45ms"
-  },
-  "redis": {
-    "connected": true,
-    "memory_usage": "128MB",
-    "keys": 5000
+    "active": 25,
+    "total": 1000
   }
 }
 ```
 
 ## 🔒 Security Features
 
-### Authentication & Authorization
-
-```javascript
-// JWT middleware
-export const authMiddleware = (req, res, next) => {
-  const token = req.header("Authorization")?.replace("Bearer ", "");
-
-  if (!token) {
-    return res.status(401).json({ message: "Access denied" });
-  }
-
-  try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.userId = decoded.userId;
-    next();
-  } catch (error) {
-    res.status(401).json({ message: "Invalid token" });
-  }
-};
-```
-
-### Rate Limiting
-
-```javascript
-// Socket rate limiting
-const rateLimitMap = new Map();
-const RATE_LIMIT = { maxEvents: 100, windowMs: 60000 };
-
-function checkRateLimit(userId) {
-  const now = Date.now();
-  const userLimit = rateLimitMap.get(userId);
-
-  if (!userLimit || now > userLimit.resetTime) {
-    rateLimitMap.set(userId, {
-      count: 1,
-      resetTime: now + RATE_LIMIT.windowMs,
-    });
-    return true;
-  }
-
-  if (userLimit.count >= RATE_LIMIT.maxEvents) {
-    return false;
-  }
-
-  userLimit.count++;
-  return true;
-}
-```
-
 ### Input Validation
 
 ```javascript
-// Message validation
-const messageValidation = [
-  body("text")
-    .optional()
-    .isString()
-    .trim()
-    .isLength({ min: 1, max: 1000 })
-    .withMessage("Message text must be between 1 and 1000 characters"),
-  body("image")
-    .optional()
-    .isString()
-    .withMessage("Image must be a valid base64 string"),
-];
+// Example validation schema
+const hotelValidation = {
+  name: Joi.string().min(2).max(100).required(),
+  address: Joi.string().min(10).max(200).required(),
+  contact: Joi.string()
+    .pattern(/^[\+]?[1-9][\d]{0,15}$/)
+    .required(),
+  city: Joi.string().min(2).max(50).required(),
+};
 ```
 
-## 🐳 Deployment
+### Error Handling
 
-### Docker Configuration
+```javascript
+// Centralized error handler
+app.use((error, req, res, next) => {
+  logger.error(`Error: ${error.message}`, {
+    requestId: req.requestId,
+    stack: error.stack,
+    url: req.url,
+    method: req.method,
+  });
+
+  if (error.name === "ValidationError") {
+    return res.status(400).json({
+      success: false,
+      message: "Validation Error",
+      errors: error.details,
+    });
+  }
+
+  res.status(500).json({
+    success: false,
+    message: "Internal Server Error",
+  });
+});
+```
+
+## 🚀 Deployment
+
+### Production Checklist
+
+- [ ] Set `NODE_ENV=production`
+- [ ] Configure production MongoDB URI
+- [ ] Set up Clerk production keys
+- [ ] Configure Cloudinary for production
+- [ ] Set secure JWT secret
+- [ ] Configure CORS for production domains
+- [ ] Set up SSL/TLS certificates
+- [ ] Configure reverse proxy (Nginx)
+- [ ] Set up monitoring and logging
+- [ ] Configure backup strategies
+
+### Docker Deployment
 
 ```dockerfile
-FROM node:18-alpine
+FROM node:16-alpine
 
 WORKDIR /app
 
-# Copy package files
 COPY package*.json ./
 RUN npm ci --only=production
 
-# Copy source code
-COPY . .
+COPY dist ./dist
 
-# Build application
-RUN npm run build
-
-# Expose port
 EXPOSE 5000
 
-# Health check
-HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-  CMD curl -f http://localhost:5000/api/health || exit 1
-
-# Start application
 CMD ["npm", "start"]
-```
-
-### Docker Compose
-
-```yaml
-version: "3.8"
-services:
-  app:
-    build: .
-    ports:
-      - "5000:5000"
-    environment:
-      - NODE_ENV=production
-      - MONGODB_URI=mongodb://mongo:27017/chatapp
-      - REDIS_URL=redis://redis:6379
-    depends_on:
-      - mongo
-      - redis
-
-  mongo:
-    image: mongo:5.0
-    ports:
-      - "27017:27017"
-    volumes:
-      - mongo_data:/data/db
-
-  redis:
-    image: redis:6.2-alpine
-    ports:
-      - "6379:6379"
-    volumes:
-      - redis_data:/data
-
-volumes:
-  mongo_data:
-  redis_data:
 ```
 
 ### Environment Variables for Production
@@ -588,143 +548,46 @@ volumes:
 ```env
 NODE_ENV=production
 PORT=5000
-CLIENT_URL=https://your-frontend-domain.com
-MONGODB_URI=mongodb://your-mongo-host:27017/chatapp
-REDIS_URL=redis://your-redis-host:6379
-JWT_SECRET=your-super-secure-jwt-secret
-CLOUDINARY_CLOUD_NAME=your-cloud-name
-CLOUDINARY_API_KEY=your-api-key
-CLOUDINARY_API_SECRET=your-api-secret
+CLIENT_URL=https://your-domain.com
+
+MONGODB_URI=mongodb+srv://user:pass@cluster.mongodb.net/hotel-booking
+CLERK_SECRET_KEY=sk_live_...
+CLOUDINARY_CLOUD_NAME=your_production_cloud
 ```
 
 ## 🧪 Testing
 
-### Unit Tests
+### Running Tests
 
-```javascript
-// __tests__/controllers/auth.test.js
-describe("Auth Controller", () => {
-  describe("POST /api/auth/login", () => {
-    it("should login user with valid credentials", async () => {
-      const response = await request(app).post("/api/auth/login").send({
-        email: "test@example.com",
-        password: "password123",
-      });
-
-      expect(response.status).toBe(200);
-      expect(response.body).toHaveProperty("token");
-      expect(response.body).toHaveProperty("user");
-    });
-  });
-});
+```bash
+npm test                    # Run all tests
+npm run test:watch         # Run tests in watch mode
+npm run test:coverage      # Run tests with coverage
 ```
 
-### Integration Tests
+### Test Structure
 
-```javascript
-// __tests__/socket/messaging.test.js
-describe("Socket Messaging", () => {
-  it("should send and receive messages", (done) => {
-    const client1 = io("http://localhost:5000");
-    const client2 = io("http://localhost:5000");
-
-    client2.on("message_received", (message) => {
-      expect(message.text).toBe("Hello World");
-      client1.disconnect();
-      client2.disconnect();
-      done();
-    });
-
-    client1.emit("send_message", {
-      receiverId: "user2",
-      text: "Hello World",
-    });
-  });
-});
+```
+tests/
+├── unit/                  # Unit tests
+│   ├── controllers/
+│   ├── services/
+│   └── utils/
+├── integration/           # Integration tests
+│   ├── routes/
+│   └── database/
+└── fixtures/              # Test data
 ```
 
-## 📈 Performance Monitoring
+## 🤝 Contributing
 
-### Winston Logger Configuration
+1. Fork the repository
+2. Create a feature branch
+3. Write tests for new functionality
+4. Ensure all tests pass
+5. Follow TypeScript and ESLint guidelines
+6. Submit a pull request
 
-```javascript
-// utils/logger.ts
-import winston from "winston";
+## 📝 License
 
-export const logger = winston.createLogger({
-  level: "info",
-  format: winston.format.combine(
-    winston.format.timestamp(),
-    winston.format.errors({ stack: true }),
-    winston.format.json()
-  ),
-  defaultMeta: { service: "chat-app" },
-  transports: [
-    new winston.transports.File({ filename: "logs/error.log", level: "error" }),
-    new winston.transports.File({ filename: "logs/combined.log" }),
-  ],
-});
-
-if (process.env.NODE_ENV !== "production") {
-  logger.add(
-    new winston.transports.Console({
-      format: winston.format.simple(),
-    })
-  );
-}
-```
-
-### Metrics Collection
-
-```javascript
-// utils/metrics.ts
-export class MetricsCollector {
-  private static instance: MetricsCollector;
-  private metrics = {
-    connections: 0,
-    messages: 0,
-    errors: 0,
-    responseTime: [],
-  };
-
-  static getInstance() {
-    if (!MetricsCollector.instance) {
-      MetricsCollector.instance = new MetricsCollector();
-    }
-    return MetricsCollector.instance;
-  }
-
-  incrementConnections() {
-    this.metrics.connections++;
-  }
-
-  incrementMessages() {
-    this.metrics.messages++;
-  }
-
-  addResponseTime(time: number) {
-    this.metrics.responseTime.push(time);
-    if (this.metrics.responseTime.length > 1000) {
-      this.metrics.responseTime.shift();
-    }
-  }
-
-  getMetrics() {
-    return {
-      ...this.metrics,
-      avgResponseTime: this.metrics.responseTime.reduce((a, b) => a + b, 0) / this.metrics.responseTime.length || 0,
-    };
-  }
-}
-```
-
-## 📞 Support
-
-For issues and questions:
-
-- Email: thangnd111220@gmail.com
-- GitHub: [@thang11122000](https://github.com/thang11122000)
-
----
-
-⭐ If this project helped you, please give it a star!
+This project is licensed under the MIT License.
