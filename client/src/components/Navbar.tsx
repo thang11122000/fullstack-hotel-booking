@@ -3,6 +3,7 @@ import { Link, useLocation } from "react-router-dom";
 import { useClerk, UserButton } from "@clerk/clerk-react";
 import { assets } from "../assets/assets";
 import { useAppContext } from "../context/AppContext";
+import LoadingButton from "./LoadingButton";
 
 // Constants
 const NAV_LINKS = [
@@ -38,7 +39,8 @@ const Navbar = () => {
 
   const { openSignIn } = useClerk();
   const location = useLocation();
-  const { user, navigate, isOwner, setShowHotelReg } = useAppContext();
+  const { user, navigate, isOwner, setShowHotelReg, isLoading } =
+    useAppContext();
 
   const isHomePage = location.pathname === "/";
 
@@ -137,12 +139,13 @@ const Navbar = () => {
           </Link>
         ))}
         {user && (
-          <button
+          <LoadingButton
+            isLoading={isLoading}
             className={`border px-4 py-1 text-sm font-light rounded-full cursor-pointer ${textColorClass} transition-all`}
             onClick={handleOwnerAction}
           >
             {isOwner ? "Dashboard" : "My Bookings"}
-          </button>
+          </LoadingButton>
         )}
       </div>
 
@@ -151,14 +154,15 @@ const Navbar = () => {
         {user ? (
           <UserButtonComponent />
         ) : (
-          <button
+          <LoadingButton
+            isLoading={isLoading}
             onClick={handleSignInClick}
             className={`px-8 py-2.5 rounded-full ml-4 transition-all duration-500 ${
               isScrolled ? "text-white bg-black" : "bg-white text-black"
             }`}
           >
             Login
-          </button>
+          </LoadingButton>
         )}
       </div>
 

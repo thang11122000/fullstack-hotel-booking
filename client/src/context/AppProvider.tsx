@@ -17,13 +17,14 @@ interface AppProviderProps {
 export const AppProvider = ({ children }: AppProviderProps) => {
   const currency = import.meta.env.VITE_CURRENCY || "$";
   const navigate = useNavigate();
-  const { user } = useUser();
-  const { getToken } = useAuth();
+  const { user, isLoaded: userLoaded } = useUser();
+  const { getToken, isLoaded: authLoaded } = useAuth();
 
   const [isOwner, setIsOwner] = useState<boolean>(false);
   const [showHotelReg, setShowHotelReg] = useState<boolean>(false);
   const [searchedCities, setSearchedCities] = useState<string[]>([]);
   const [rooms, setRooms] = useState<Room[]>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
 
   const fetchRooms = async (): Promise<void> => {
     try {
@@ -42,12 +43,22 @@ export const AppProvider = ({ children }: AppProviderProps) => {
   };
 
   const fetchUser = useCallback(async (): Promise<void> => {
-    if (!user) return;
+    // Don't fetch if Clerk is not loaded yet
+    if (!userLoaded || !authLoaded) {
+      return;
+    }
+
+    if (!user) {
+      setIsLoading(false);
+      return;
+    }
 
     try {
+      setIsLoading(true);
       const token = await getToken();
       if (!token) {
         console.warn("Authentication token not available");
+        setIsLoading(false);
         return;
       }
 
@@ -75,8 +86,17 @@ export const AppProvider = ({ children }: AppProviderProps) => {
       } else {
         toast.error("An unexpected error occurred while fetching user data");
       }
+    } finally {
+      setIsLoading(false);
     }
-  }, [getToken, user]);
+  }, [getToken, user, userLoaded, authLoaded]);
+
+  // Set loading to false when Clerk is loaded and no user is present
+  useEffect(() => {
+    if (userLoaded && authLoaded && !user) {
+      setIsLoading(false);
+    }
+  }, [userLoaded, authLoaded, user]);
 
   useEffect(() => {
     fetchUser();
@@ -100,6 +120,8 @@ export const AppProvider = ({ children }: AppProviderProps) => {
     setSearchedCities,
     rooms,
     setRooms,
+    isLoading,
+    setIsLoading,
   };
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;

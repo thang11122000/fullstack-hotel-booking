@@ -11,10 +11,16 @@ import ListRoom from "./pages/dashboard/ListRoom";
 import { Toaster } from "react-hot-toast";
 import { useAppContext } from "./context/AppContext";
 import MyBooking from "./pages/rooms/MyBooking";
+import Loading from "./components/Loading";
 
 const App = () => {
   const isOwnerPath = useLocation().pathname.includes("owner");
-  const { showHotelReg } = useAppContext();
+  const { showHotelReg, isLoading } = useAppContext();
+
+  // Show loading screen when authenticating user
+  if (isLoading) {
+    return <Loading message="Loading..." fullScreen />;
+  }
 
   return (
     <div>

@@ -17,4 +17,6 @@ export interface AppContextType {
   setSearchedCities: React.Dispatch<React.SetStateAction<string[]>>;
   rooms: Room[];
   setRooms: React.Dispatch<React.SetStateAction<Room[]>>;
+  isLoading: boolean;
+  setIsLoading: React.Dispatch<React.SetStateAction<boolean>>;
 }
