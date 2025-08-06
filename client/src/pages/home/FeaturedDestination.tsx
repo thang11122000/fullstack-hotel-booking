@@ -1,8 +1,6 @@
-import { roomsDummyData } from "../assets/assets";
-import { useAppContext } from "../context/AppContext";
-import HotelCard from "./HotelCard";
-import Title from "./Title";
-import { useNavigate } from "react-router-dom";
+import HotelCard from "../../components/HotelCard";
+import Title from "../../components/Title";
+import { useAppContext } from "../../context/AppContext";
 
 const FeaturedDestination = () => {
   const { navigate, rooms } = useAppContext();

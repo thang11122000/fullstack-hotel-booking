@@ -5,10 +5,10 @@ import {
   facilityIcons,
   roomCommonData,
   roomsDummyData,
-} from "../assets/assets";
-import StarRating from "../components/StarRating";
-import type { Room } from "../types";
-import { useAppContext } from "../context/AppContext";
+} from "../../assets/assets";
+import StarRating from "../../components/StarRating";
+import type { Room } from "../../types";
+import { useAppContext } from "../../context/AppContext";
 import toast from "react-hot-toast";
 
 const RoomDetails = () => {

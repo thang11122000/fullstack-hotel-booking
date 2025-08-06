@@ -1,6 +1,6 @@
-import Title from "./Title";
-import { testimonials } from "../assets/assets";
-import StarRating from "./StarRating";
+import { testimonials } from "../../assets/assets";
+import StarRating from "../../components/StarRating";
+import Title from "../../components/Title";
 
 const Testimonial = () => {
   return (

@@ -1,6 +1,7 @@
 import React, { useState, useCallback, useMemo } from "react";
-import { assets, cities } from "../assets/assets";
-import { useAppContext } from "../context/AppContext";
+import { useAppContext } from "../../context/AppContext";
+import { cities } from "../../assets/assets";
+import { assets } from "../../assets";
 
 const MAX_RECENT_SEARCHES = 3;
 const MIN_GUESTS = 1;

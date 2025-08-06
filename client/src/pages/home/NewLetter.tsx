@@ -1,5 +1,5 @@
-import { assets } from "../assets/assets";
-import Title from "./Title";
+import { assets } from "../../assets";
+import Title from "../../components/Title";
 
 const NewLetter = () => {
   return (

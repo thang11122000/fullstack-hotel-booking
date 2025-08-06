@@ -1,8 +1,8 @@
 import { useCallback, useMemo, useState } from "react";
-import { assets, facilityIcons, roomsDummyData } from "../assets/assets";
+import { assets, facilityIcons, roomsDummyData } from "../../assets/assets";
 import { useNavigate } from "react-router-dom";
-import StarRating from "../components/StarRating";
-import { useAppContext } from "../context/AppContext";
+import StarRating from "../../components/StarRating";
+import { useAppContext } from "../../context/AppContext";
 
 interface CheckboxProps {
   label: string;

@@ -1,5 +1,6 @@
-import Title from "./Title";
-import { assets, exclusiveOffers } from "../assets/assets";
+import { assets } from "../../assets";
+import { exclusiveOffers } from "../../assets/assets";
+import Title from "../../components/Title";
 
 const ExclusiveOffers = () => {
   return (
