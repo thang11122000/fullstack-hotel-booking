@@ -2,6 +2,7 @@ import { useState, useCallback } from "react";
 import { useAppContext } from "../context/AppContext";
 import type { ApiResponse } from "../types";
 import toast from "react-hot-toast";
+import { isAxiosError } from "axios";
 
 interface UseApiOptions {
   showSuccessToast?: boolean;
@@ -74,7 +75,7 @@ export const useApi = <T = unknown>(
       } catch (err: unknown) {
         let errorMessage = "An unexpected error occurred";
 
-        if (axios.isAxiosError(err)) {
+        if (isAxiosError(err)) {
           errorMessage = err.response?.data?.message || err.message;
         } else if (err instanceof Error) {
           errorMessage = err.message;

@@ -63,11 +63,13 @@ export const validateForm = <T extends Record<string, any>>(
 
   Object.keys(rules).forEach((field) => {
     const fieldRules = rules[field];
-    const fieldValue = values[field];
-    const error = validateField(fieldValue, fieldRules);
+    if (fieldRules) {
+      const fieldValue = values[field];
+      const error = validateField(fieldValue, fieldRules);
 
-    if (error) {
-      errors[field as keyof T] = error;
+      if (error) {
+        errors[field as keyof T] = error;
+      }
     }
   });
 
@@ -95,6 +97,7 @@ export const COMMON_RULES = {
       if (value && !VALIDATION_PATTERNS.email.test(value)) {
         return "Please enter a valid email address";
       }
+      return undefined;
     },
   },
   phone: {
@@ -104,6 +107,7 @@ export const COMMON_RULES = {
       if (value && !VALIDATION_PATTERNS.phone.test(value)) {
         return "Please enter a valid phone number";
       }
+      return undefined;
     },
   },
   password: {
@@ -113,6 +117,7 @@ export const COMMON_RULES = {
       if (value && !VALIDATION_PATTERNS.password.test(value)) {
         return "Password must contain at least 8 characters with uppercase, lowercase, and number";
       }
+      return undefined;
     },
   },
   name: {
@@ -147,6 +152,7 @@ export const HOTEL_VALIDATION_RULES: ValidationRules = {
       if (value && !VALIDATION_PATTERNS.phone.test(value)) {
         return "Please enter a valid contact number";
       }
+      return undefined;
     },
   },
   city: {
@@ -170,6 +176,7 @@ export const ROOM_VALIDATION_RULES: ValidationRules = {
       if (value > 10000) {
         return "Price seems too high";
       }
+      return undefined;
     },
   },
   maxGuests: {
@@ -181,6 +188,7 @@ export const ROOM_VALIDATION_RULES: ValidationRules = {
       if (value > 20) {
         return "Maximum 20 guests allowed";
       }
+      return undefined;
     },
   },
   description: {
@@ -200,6 +208,7 @@ export const BOOKING_VALIDATION_RULES: ValidationRules = {
       if (date < today) {
         return "Check-in date cannot be in the past";
       }
+      return undefined;
     },
   },
   checkOutDate: {
@@ -212,6 +221,7 @@ export const BOOKING_VALIDATION_RULES: ValidationRules = {
       if (date <= today) {
         return "Check-out date must be after today";
       }
+      return undefined;
     },
   },
   guests: {
@@ -223,6 +233,7 @@ export const BOOKING_VALIDATION_RULES: ValidationRules = {
       if (value > 20) {
         return "Maximum 20 guests allowed";
       }
+      return undefined;
     },
   },
 };

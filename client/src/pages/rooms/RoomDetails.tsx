@@ -17,8 +17,8 @@ const RoomDetails = () => {
 
   const [room, setRoom] = useState<Room | null>(null);
   const [mainImage, setMainImage] = useState<string | null>(null);
-  const [checkInDate, setCheckInDate] = useState(null);
-  const [checkOutDate, setCheckOutDate] = useState(null);
+  const [checkInDate, setCheckInDate] = useState<string>("");
+  const [checkOutDate, setCheckOutDate] = useState<string>("");
   const [guests, setGuests] = useState<number>(1);
   const [isAvailable, setIsAvailable] = useState(false);
 
@@ -56,7 +56,9 @@ const RoomDetails = () => {
         );
       }
     } catch (err) {
-      toast.error(err.message);
+      const errorMessage =
+        err instanceof Error ? err.message : "An error occurred";
+      toast.error(errorMessage);
     }
   };
 
@@ -90,7 +92,9 @@ const RoomDetails = () => {
         }
       }
     } catch (error) {
-      toast.error(error.message);
+      const errorMessage =
+        error instanceof Error ? error.message : "An error occurred";
+      toast.error(errorMessage);
     }
   };
 
@@ -183,11 +187,11 @@ const RoomDetails = () => {
               </label>
               <input
                 id="checkInDate"
-                min="2025-07-31"
                 className="w-full rounded border border-gray-300 px-3 py-2 mt-1.5 outline-none"
                 placeholder="Check-In"
                 required
                 type="date"
+                value={checkInDate}
                 onChange={(e) => setCheckInDate(e.target.value)}
                 min={new Date().toISOString().split("T")[0]}
               />
@@ -203,9 +207,9 @@ const RoomDetails = () => {
                 placeholder="Check-Out"
                 required
                 type="date"
-                min={checkOutDate}
+                value={checkOutDate}
+                min={checkInDate || new Date().toISOString().split("T")[0]}
                 onChange={(e) => setCheckOutDate(e.target.value)}
-                // disabled={!checkOutDate}
               />
             </div>
             <div className="w-px h-15 bg-gray-300/70 max-md:hidden" />

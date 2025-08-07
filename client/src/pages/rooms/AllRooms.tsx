@@ -192,8 +192,15 @@ const AllRooms = () => {
       if (selectedFilters.priceRange.length === 0) return true;
 
       return selectedFilters.priceRange.some((range: string) => {
-        const [min, max] = range.split(" to ").map(Number);
-        return room.pricePerNight >= min && room.pricePerNight <= max;
+        const [minStr, maxStr] = range.split(" to ");
+        const min = Number(minStr);
+        const max = Number(maxStr);
+        return (
+          !isNaN(min) &&
+          !isNaN(max) &&
+          room.pricePerNight >= min &&
+          room.pricePerNight <= max
+        );
       });
     },
     [selectedFilters.priceRange]

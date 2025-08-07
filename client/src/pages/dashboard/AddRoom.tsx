@@ -317,7 +317,11 @@ const AddRoom = () => {
         <ImageUpload
           images={images}
           onImageChange={handleImageChange}
-          errors={errors.images ? [errors.images] : undefined}
+          errors={
+            (errors as FormErrors).images
+              ? [(errors as FormErrors).images!]
+              : undefined
+          }
         />
 
         {/* Room Details Section */}
