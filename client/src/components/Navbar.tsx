@@ -150,7 +150,7 @@ const Navbar = () => {
       </div>
 
       {/* Desktop Right */}
-      <div className="hidden md:flex items-center gap-4">
+      <div className="hidden md:flex items-center gap-4 min-w-10">
         {user ? (
           <UserButtonComponent />
         ) : (

@@ -550,7 +550,7 @@ NODE_ENV=production
 PORT=5000
 CLIENT_URL=https://your-domain.com
 
-MONGODB_URI=mongodb+srv://user:pass@cluster.mongodb.net/hotel-booking
+MONGODB_URI=mongodb+srv://...
 CLERK_SECRET_KEY=sk_live_...
 CLOUDINARY_CLOUD_NAME=your_production_cloud
 ```
