@@ -28,7 +28,9 @@ export const createRoom = async (
     const files = Array.isArray(req.files) ? req.files : [];
 
     const uploadImages = files.map(async (file) => {
-      const response = await cloudinary.uploader.upload(file.path);
+      const response = await cloudinary.uploader.upload(file.path, {
+        folder: "hotel-booking",
+      });
       return response.secure_url;
     });
 

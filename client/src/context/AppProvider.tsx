@@ -66,30 +66,27 @@ export const AppProvider = ({ children }: AppProviderProps) => {
         headers: { Authorization: `Bearer ${token}` },
       });
 
-      if (data.success && data.data) {
-        const { role, recentSearchedCities } = data.data;
-        setIsOwner(role === "hotelOwner");
-        setSearchedCities(recentSearchedCities || []);
-      } else {
-        console.warn("Failed to fetch user data:", data.message);
+      if (data.success) {
+        if (data.data) {
+          const { role, recentSearchedCities } = data.data;
+          setIsOwner(role === "hotelOwner");
+          setSearchedCities(recentSearchedCities || []);
+        }
       }
     } catch (error: unknown) {
       console.error("Failed to fetch user data:", error);
 
-      // More specific error handling
       if (axios.isAxiosError(error)) {
         const errorMessage =
           error.response?.data?.message ||
           error.message ||
           "Failed to fetch user data";
         toast.error(errorMessage);
-      } else {
-        toast.error("An unexpected error occurred while fetching user data");
       }
     } finally {
       setIsLoading(false);
     }
-  }, [getToken, user, userLoaded, authLoaded]);
+  }, [authLoaded, getToken, user, userLoaded]);
 
   // Set loading to false when Clerk is loaded and no user is present
   useEffect(() => {

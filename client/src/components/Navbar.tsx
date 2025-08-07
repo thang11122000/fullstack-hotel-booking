@@ -157,7 +157,7 @@ const Navbar = () => {
           <LoadingButton
             isLoading={isLoading}
             onClick={handleSignInClick}
-            className={`px-8 py-2.5 rounded-full ml-4 transition-all duration-500 ${
+            className={`px-8 py-2.5 rounded-full ml-4 transition-all duration-500 cursor-pointer ${
               isScrolled ? "text-white bg-black" : "bg-white text-black"
             }`}
           >
@@ -221,7 +221,7 @@ const Navbar = () => {
               handleSignInClick();
               handleMenuClose();
             }}
-            className="bg-black text-white px-8 py-2.5 rounded-full transition-all duration-500 hover:bg-gray-800"
+            className="bg-black text-white px-8 py-2.5 rounded-full transition-all duration-500 hover:bg-gray-800 cursor-pointer"
           >
             Login
           </button>

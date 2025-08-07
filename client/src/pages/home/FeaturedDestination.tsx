@@ -15,7 +15,7 @@ const FeaturedDestination = () => {
           align="center"
           font="font-playfair"
         />
-        <div className="flex flex-wrap items-center justify-center gap-6 mt-20">
+        <div className="w-full flex flex-wrap items-center justify-center gap-6 mt-20">
           {rooms.slice(0, 4).map((room, index) => (
             <HotelCard key={index} room={room} index={index}></HotelCard>
           ))}

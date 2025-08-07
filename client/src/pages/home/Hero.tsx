@@ -122,7 +122,7 @@ const Hero: React.FC = () => {
   );
 
   return (
-    <div className="flex flex-col items-start justify-center px-6 md:px-16 lg:px-24 xl:px-32 text-white bg-[url('/src/assets/heroImage.png')] bg-cover bg-center h-screen bg-no-repeat">
+    <div className="flex flex-col items-start justify-center px-6 md:px-16 lg:px-24 xl:px-32 text-white bg-[url('/src/assets/singapore-50547_1920.jpg')] bg-cover bg-top h-screen bg-no-repeat grayscale-[20%]">
       {/* Hero Content */}
       <div className="mt-20">
         <p className="bg-[#49b9ff]/50 px-3.5 py-1 rounded-full w-max">

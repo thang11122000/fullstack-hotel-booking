@@ -127,7 +127,7 @@ const RoomDetails = () => {
         <div className="flex flex-col lg:flex-row mt-6 gap-6">
           <div className="lg:w-1/2 w-full">
             <img
-              className="w-full rounded-xl shadow-lg object-cover"
+              className="w-full rounded-xl shadow-lg object-cover h-full"
               alt="Room Image"
               src={mainImage || ""}
             />
